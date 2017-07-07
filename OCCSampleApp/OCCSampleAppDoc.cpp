@@ -17,6 +17,8 @@
 #include <BRepBuilderAPI_MakeSolid.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
+#include <BRepMesh.hxx>
+#include <StlTransfer.hxx>
 
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -193,49 +195,6 @@ void COCCSampleAppDoc::OnTestAddsphere() {
 }
 
 
-//def simple_mesh() :
-//#
-//	# Create the shape
-//#
-//	shape = BRepPrimAPI_MakeBox(200, 200, 200).Shape()
-//	theBox = BRepPrimAPI_MakeBox(200, 60, 60).Shape()
-//	theSphere = BRepPrimAPI_MakeSphere(gp_Pnt(100, 20, 20), 80).Shape()
-//	shape = BRepAlgoAPI_Fuse(theSphere, theBox).Shape()
-//#
-//	# Mesh the shape
-//#
-//	BRepMesh_IncrementalMesh(shape, 0.8)
-//	builder = BRep_Builder()
-//	comp = TopoDS_Compound()
-//	builder.MakeCompound(comp)
-//
-//	bt = BRep_Tool()
-//	ex = TopExp_Explorer(shape, TopAbs_FACE)
-//	while ex.More() :
-//		face = topods_Face(ex.Current())
-//		location = TopLoc_Location()
-//		facing = (bt.Triangulation(face, location)).GetObject()
-//		tab = facing.Nodes()
-//		tri = facing.Triangles()
-//		for i in range(1, facing.NbTriangles() + 1) :
-//			trian = tri.Value(i)
-//			index1, index2, index3 = trian.Get()
-//			for j in range(1, 4) :
-//				if j == 1 :
-//					m = index1
-//					n = index2
-//					elif j == 2 :
-//					n = index3
-//					elif j == 3 :
-//					m = index2
-//					me = BRepBuilderAPI_MakeEdge(tab.Value(m), tab.Value(n))
-//					if me.IsDone() :
-//						builder.Add(comp, me.Edge())
-//						ex.Next()
-//						display.EraseAll()
-//						display.DisplayShape(shape)
-//						display.DisplayShape(comp, update = True)
-
 void COCCSampleAppDoc::OnTestMeshing() {
 	const Standard_Real aRadius = 10.0;
 	const Standard_Real aHeight = 25.0;
@@ -244,6 +203,105 @@ void COCCSampleAppDoc::OnTestMeshing() {
 	TopoDS_Shape aShape = aCylinder.Shape();
 	const Standard_Real aLinearDeflection = 0.01;
 	const Standard_Real anAngularDeflection = 0.5;
-	BRepMesh_IncrementalMesh aMesh(aShape, aLinearDeflection, Standard_False, anAngularDeflection);
-	aMesh.Perform();
+	BRepMesh_IncrementalMesh aMesher(aShape, aLinearDeflection, Standard_False, anAngularDeflection);
+
+	Handle(StlMesh_Mesh) aShapeMesh = new StlMesh_Mesh;
+	StlTransfer::RetrieveMesh(aShape, aShapeMesh);
+	saveMesh(aShapeMesh, L"F:\\Sviluppo\\OCCSampleApp\\shapeMesh.stl");
+}
+
+
+
+bool COCCSampleAppDoc::saveMesh(const Handle(StlMesh_Mesh) &_mesh, std::wstring _fileName) {
+	bool ret = false;
+	std::ofstream outputFile;
+	outputFile.open(_fileName.c_str(), std::ofstream::out | std::ofstream::binary);
+	if (outputFile.good() == true) {
+		time_t t;
+		struct tm t_info;
+		time(&t);
+		localtime_s(&t_info, &t);
+		char timeStr[1024];
+		asctime_s(timeStr, &t_info);
+		std::string headerStr = "stl_offset  ";
+		headerStr += timeStr;
+		for (unsigned int i = 0; outputFile.good() && i < 80; i++) {
+			if (i < headerStr.length()) {
+				outputFile.put(headerStr[i]);
+			}
+			else {
+				outputFile.put('\n');
+			}
+		}
+		if (outputFile.good()) {
+			unsigned int triangNum = _mesh->NbTriangles();// numFace();
+			outputFile.write((char*)(&triangNum), sizeof(triangNum));
+			unsigned short attr = 0;
+
+			for (int domIndex = 1; outputFile.good() && domIndex <= _mesh->NbDomains(); domIndex++) {
+				TColgp_SequenceOfXYZ vertexArray = _mesh->Vertices(domIndex);
+				StlMesh_SequenceOfMeshTriangle facesArray = _mesh->Triangles(domIndex);
+				for (int i = 1; i <= facesArray.Size(); i++) {
+					float val = 0.0;
+
+					Standard_Real nX = 0;
+					Standard_Real nY = 0;
+					Standard_Real nZ = 0;
+					Standard_Integer v1Index = 0;
+					Standard_Integer v2Index = 0;
+					Standard_Integer v3Index = 0;
+					(facesArray.Value(i))->GetVertexAndOrientation(v1Index, v2Index, v3Index, nX, nY, nZ);
+					val = (float)nX;
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)nY;
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)nZ;
+					outputFile.write((char*)(&val), sizeof(val));
+
+					val = (float)(vertexArray.Value(v1Index).X());
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)(vertexArray.Value(v1Index).Y());
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)(vertexArray.Value(v1Index).Z());
+					outputFile.write((char*)(&val), sizeof(val));
+
+					val = (float)(vertexArray.Value(v2Index).X());
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)(vertexArray.Value(v2Index).Y());
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)(vertexArray.Value(v2Index).Z());
+					outputFile.write((char*)(&val), sizeof(val));
+
+					val = (float)(vertexArray.Value(v3Index).X());
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)(vertexArray.Value(v3Index).Y());
+					outputFile.write((char*)(&val), sizeof(val));
+					val = (float)(vertexArray.Value(v3Index).Z());
+					outputFile.write((char*)(&val), sizeof(val));
+
+					outputFile.write((char*)(&attr), sizeof(attr));
+				}
+				//for (i = 0; outputFile.good() && i < triangNum; i++) {
+				//	float val = 0.0;
+				//	for (unsigned int j = 0; outputFile.good() && j < 12; j++) {
+				//		if (j < 3) {
+				//			val = (float)(mFaces[i]->n[j]);
+				//		}
+				//		else {
+				//			val = (float)((mFaces[i]->vNdx[(j - 3) / 3])->v[(j - 3) % 3]);
+				//		}
+				//		_fstream.write((char*)(&val), sizeof(val));
+				//	}
+				//	_fstream.write((char*)(&(mFaces[i]->attr)), sizeof(mFaces[i]->attr));
+				//}
+			}
+
+
+			if (outputFile.good()) {
+				ret = true;
+			}
+		}
+	}
+	outputFile.close();
+	return ret;
 }

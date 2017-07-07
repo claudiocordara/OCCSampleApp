@@ -6,6 +6,9 @@
 #pragma once
 
 
+#include <StlMesh_Mesh.hxx>
+
+
 class COCCSampleAppDoc : public CDocument
 {
 protected: // create from serialization only
@@ -60,4 +63,7 @@ private:
 public:
 	afx_msg void OnTestAddsphere();
 	afx_msg void OnTestMeshing();
+
+private:
+	bool saveMesh(const Handle(StlMesh_Mesh) &_mesh, std::wstring _fileName);
 };
