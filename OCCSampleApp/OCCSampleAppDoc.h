@@ -59,4 +59,5 @@ private:
 
 public:
 	afx_msg void OnTestAddsphere();
+	afx_msg void OnTestMeshing();
 };

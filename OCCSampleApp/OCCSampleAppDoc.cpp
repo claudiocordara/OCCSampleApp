@@ -13,6 +13,11 @@
 
 #include <propkey.h>
 
+#include <BRepBuilderAPI.hxx>
+#include <BRepBuilderAPI_MakeSolid.hxx>
+#include <BRepMesh_IncrementalMesh.hxx>
+#include <BRep_Tool.hxx>
+
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
 //#endif
@@ -23,6 +28,7 @@ IMPLEMENT_DYNCREATE(COCCSampleAppDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(COCCSampleAppDoc, CDocument)
 	ON_COMMAND(ID_TEST_ADDSPHERE, &COCCSampleAppDoc::OnTestAddsphere)
+	ON_COMMAND(ID_TEST_MESHINGTEST, &COCCSampleAppDoc::OnTestMeshing)
 END_MESSAGE_MAP()
 
 
@@ -184,4 +190,60 @@ void COCCSampleAppDoc::AddSphere(double Radius) {
 void COCCSampleAppDoc::OnTestAddsphere() {
 	// TODO: aggiungere qui il codice del gestore di comandi
 	AddSphere(10);
+}
+
+
+//def simple_mesh() :
+//#
+//	# Create the shape
+//#
+//	shape = BRepPrimAPI_MakeBox(200, 200, 200).Shape()
+//	theBox = BRepPrimAPI_MakeBox(200, 60, 60).Shape()
+//	theSphere = BRepPrimAPI_MakeSphere(gp_Pnt(100, 20, 20), 80).Shape()
+//	shape = BRepAlgoAPI_Fuse(theSphere, theBox).Shape()
+//#
+//	# Mesh the shape
+//#
+//	BRepMesh_IncrementalMesh(shape, 0.8)
+//	builder = BRep_Builder()
+//	comp = TopoDS_Compound()
+//	builder.MakeCompound(comp)
+//
+//	bt = BRep_Tool()
+//	ex = TopExp_Explorer(shape, TopAbs_FACE)
+//	while ex.More() :
+//		face = topods_Face(ex.Current())
+//		location = TopLoc_Location()
+//		facing = (bt.Triangulation(face, location)).GetObject()
+//		tab = facing.Nodes()
+//		tri = facing.Triangles()
+//		for i in range(1, facing.NbTriangles() + 1) :
+//			trian = tri.Value(i)
+//			index1, index2, index3 = trian.Get()
+//			for j in range(1, 4) :
+//				if j == 1 :
+//					m = index1
+//					n = index2
+//					elif j == 2 :
+//					n = index3
+//					elif j == 3 :
+//					m = index2
+//					me = BRepBuilderAPI_MakeEdge(tab.Value(m), tab.Value(n))
+//					if me.IsDone() :
+//						builder.Add(comp, me.Edge())
+//						ex.Next()
+//						display.EraseAll()
+//						display.DisplayShape(shape)
+//						display.DisplayShape(comp, update = True)
+
+void COCCSampleAppDoc::OnTestMeshing() {
+	const Standard_Real aRadius = 10.0;
+	const Standard_Real aHeight = 25.0;
+
+	BRepPrimAPI_MakeCylinder aCylinder(aRadius, aHeight);
+	TopoDS_Shape aShape = aCylinder.Shape();
+	const Standard_Real aLinearDeflection = 0.01;
+	const Standard_Real anAngularDeflection = 0.5;
+	BRepMesh_IncrementalMesh aMesh(aShape, aLinearDeflection, Standard_False, anAngularDeflection);
+	aMesh.Perform();
 }

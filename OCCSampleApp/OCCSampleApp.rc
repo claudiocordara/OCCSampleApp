@@ -101,6 +101,7 @@ BEGIN
     POPUP "Test"
     BEGIN
         MENUITEM "Add Sphere",                  ID_TEST_ADDSPHERE
+        MENUITEM "Meshing Test",                ID_TEST_MESHINGTEST
     END
     POPUP "&Help"
     BEGIN

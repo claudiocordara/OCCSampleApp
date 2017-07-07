@@ -120,7 +120,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\..\..\OpenCASCADE7.0.0-vc12-64\opencascade-7.0.0\win64\vc15\libd;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>TKOpenGl.lib;TKernel.lib;TKGeomBase.lib;TKTopAlgo.lib;TKOffset.lib;TKBool.lib;TKPrim.lib;TKFillet.lib;TKMath.lib;TKService.lib;TKV3d.lib;TKBrep.lib;TKIGES.lib;TKSTL.lib;TKVRML.lib;TKSTEP.lib;TKG3d.lib;TKG2d.lib;TKXSBase.lib;TKShHealing.lib;TKBO.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TKOpenGl.lib;TKernel.lib;TKGeomBase.lib;TKTopAlgo.lib;TKOffset.lib;TKBool.lib;TKPrim.lib;TKFillet.lib;TKMath.lib;TKService.lib;TKV3d.lib;TKBrep.lib;TKIGES.lib;TKSTL.lib;TKVRML.lib;TKSTEP.lib;TKG3d.lib;TKG2d.lib;TKXSBase.lib;TKShHealing.lib;TKBO.lib;TKMesh.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
