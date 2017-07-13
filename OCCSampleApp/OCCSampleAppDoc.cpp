@@ -19,6 +19,7 @@
 #include <BRep_Tool.hxx>
 #include <BRepMesh.hxx>
 #include <StlTransfer.hxx>
+#include <Geom_BSplineSurface.hxx>
 
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -31,6 +32,7 @@ IMPLEMENT_DYNCREATE(COCCSampleAppDoc, CDocument)
 BEGIN_MESSAGE_MAP(COCCSampleAppDoc, CDocument)
 	ON_COMMAND(ID_TEST_ADDSPHERE, &COCCSampleAppDoc::OnTestAddsphere)
 	ON_COMMAND(ID_TEST_MESHINGTEST, &COCCSampleAppDoc::OnTestMeshing)
+	ON_COMMAND(ID_TEST_ADDNURBSSURFACE, &COCCSampleAppDoc::OnTestAddNurbsSurface)
 END_MESSAGE_MAP()
 
 
@@ -201,13 +203,26 @@ void COCCSampleAppDoc::OnTestMeshing() {
 
 	BRepPrimAPI_MakeCylinder aCylinder(aRadius, aHeight);
 	TopoDS_Shape aShape = aCylinder.Shape();
-	const Standard_Real aLinearDeflection = 0.01;
-	const Standard_Real anAngularDeflection = 0.5;
-	BRepMesh_IncrementalMesh aMesher(aShape, aLinearDeflection, Standard_False, anAngularDeflection);
 
-	Handle(StlMesh_Mesh) aShapeMesh = new StlMesh_Mesh;
-	StlTransfer::RetrieveMesh(aShape, aShapeMesh);
+	//const Standard_Real aLinearDeflection = 0.01;
+	//const Standard_Real anAngularDeflection = 0.5;
+	//BRepMesh_IncrementalMesh aMesher(aShape, aLinearDeflection, Standard_False, anAngularDeflection);
+	//Handle(StlMesh_Mesh) aShapeMesh = new StlMesh_Mesh;
+	//StlTransfer::RetrieveMesh(aShape, aShapeMesh);
+
+	Handle(StlMesh_Mesh) aShapeMesh;
+	generateMesh(aShape, 0.01, 0.5, aShapeMesh);
+
 	saveMesh(aShapeMesh, L"F:\\Sviluppo\\OCCSampleApp\\shapeMesh.stl");
+}
+
+
+
+bool COCCSampleAppDoc::generateMesh(const TopoDS_Shape &_shape, Standard_Real _linearDeflection, Standard_Real _angularDeflection, Handle(StlMesh_Mesh) &_mesh) {
+	BRepMesh_IncrementalMesh aMesher(_shape, _linearDeflection, Standard_False, _angularDeflection);
+	_mesh = new StlMesh_Mesh;
+	StlTransfer::RetrieveMesh(_shape, _mesh);
+	return true;
 }
 
 
@@ -304,4 +319,68 @@ bool COCCSampleAppDoc::saveMesh(const Handle(StlMesh_Mesh) &_mesh, std::wstring 
 	}
 	outputFile.close();
 	return ret;
+}
+
+
+void COCCSampleAppDoc::OnTestAddNurbsSurface() {
+	TColgp_Array2OfPnt cpArray(0, 3, 0, 3);
+	cpArray.SetValue(0, 0, gp_Pnt(-6, -6, 0));
+	cpArray.SetValue(0, 1, gp_Pnt(-6, -2, 0));
+	cpArray.SetValue(0, 2, gp_Pnt(-6, 2, 0));
+	cpArray.SetValue(0, 3, gp_Pnt(-6, 6, 0));
+	cpArray.SetValue(1, 0, gp_Pnt(-2, -6, 0));
+	cpArray.SetValue(1, 1, gp_Pnt(-2, -2, 8));
+	cpArray.SetValue(1, 2, gp_Pnt(-2, 2, 8));
+	cpArray.SetValue(1, 3, gp_Pnt(-2, 6, 0));
+	cpArray.SetValue(2, 0, gp_Pnt(2, -6, 0));
+	cpArray.SetValue(2, 1, gp_Pnt(2, -2, 8));
+	cpArray.SetValue(2, 2, gp_Pnt(2, 2, 8));
+	cpArray.SetValue(2, 3, gp_Pnt(2, 6, 0));
+	cpArray.SetValue(3, 0, gp_Pnt(6, -6, 0));
+	cpArray.SetValue(3, 1, gp_Pnt(6, -2, 0));
+	cpArray.SetValue(3, 2, gp_Pnt(6, 2, 0));
+	cpArray.SetValue(3, 3, gp_Pnt(6, 6, 0));
+
+	TColStd_Array1OfReal uKnotsArray(0, 1);
+	uKnotsArray.SetValue(0, 0);
+	uKnotsArray.SetValue(1, 1);
+
+	TColStd_Array1OfReal vKnotsArray(0, 1);
+	vKnotsArray.SetValue(0, 0);
+	vKnotsArray.SetValue(1, 1);
+
+	TColStd_Array1OfInteger uMultsArray(0, 1);
+	uMultsArray.SetValue(0, 4);
+	uMultsArray.SetValue(1, 4);
+
+	TColStd_Array1OfInteger vMultsArray(0, 1);
+	vMultsArray.SetValue(0, 4);
+	vMultsArray.SetValue(1, 4);
+
+	Handle(Geom_BSplineSurface) nurbsSurf;
+	nurbsSurf = new Geom_BSplineSurface(cpArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 3, 3);
+	
+	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, Precision::Confusion());
+	TopoDS_Face Nurbsface = faceMaker.Face();
+
+	nurbsShape = new AIS_Shape(Nurbsface);
+	if (nurbsShape.IsNull() == false) {
+
+		// Add the new sphere to the graphic context
+		myAISContext->SetDisplayMode(nurbsShape, AIS_Shaded);
+		myAISContext->Display(nurbsShape);  // Draw the Sphere on the Screen  
+		myAISContext->DisplayAll();
+
+		// Update the viewer
+		myViewer->InitActiveViews();
+		Handle(V3d_View) activeView = myViewer->ActiveView();
+		if (activeView.IsNull() == false) {
+			activeView->FitAll();           // Focus to the View to the Drawn Shape.  
+		}
+	}
+
+
+	Handle(StlMesh_Mesh) aShapeMesh;
+	generateMesh(Nurbsface, 0.01, 0.5, aShapeMesh);
+	saveMesh(aShapeMesh, L"F:\\Sviluppo\\OCCSampleApp\\nurbsMesh.stl");
 }

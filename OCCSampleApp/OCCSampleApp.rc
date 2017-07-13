@@ -102,6 +102,7 @@ BEGIN
     BEGIN
         MENUITEM "Add Sphere",                  ID_TEST_ADDSPHERE
         MENUITEM "Meshing Test",                ID_TEST_MESHINGTEST
+        MENUITEM "Add Nurbs Surface",           ID_TEST_ADDNURBSSURFACE
     END
     POPUP "&Help"
     BEGIN

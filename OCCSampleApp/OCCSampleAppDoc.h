@@ -58,6 +58,7 @@ private:
 	Handle(AIS_InteractiveContext) myAISContext;		///< Graphic context
 	Handle(V3d_Viewer) myViewer;						///< 3d viewer instance
 	Handle(AIS_Shape) sphereShape;						///< Sample object (a sphere)
+	Handle(AIS_Shape) nurbsShape;
 
 
 public:
@@ -65,5 +66,8 @@ public:
 	afx_msg void OnTestMeshing();
 
 private:
+	bool generateMesh(const TopoDS_Shape &_shape, Standard_Real _linearDeflection, Standard_Real _angularDeflection, Handle(StlMesh_Mesh) &_mesh);
 	bool saveMesh(const Handle(StlMesh_Mesh) &_mesh, std::wstring _fileName);
+public:
+	afx_msg void OnTestAddNurbsSurface();
 };
