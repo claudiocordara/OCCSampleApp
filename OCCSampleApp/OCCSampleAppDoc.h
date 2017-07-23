@@ -68,6 +68,9 @@ public:
 private:
 	bool generateMesh(const TopoDS_Shape &_shape, Standard_Real _linearDeflection, Standard_Real _angularDeflection, Handle(StlMesh_Mesh) &_mesh);
 	bool saveMesh(const Handle(StlMesh_Mesh) &_mesh, std::wstring _fileName);
+	bool dumpNurbs(TopoDS_Shape _shape);
 public:
 	afx_msg void OnTestAddNurbsSurface();
+	afx_msg void OnTestAddRationalNurbsSurface();
+	afx_msg void OnTestNurbsDump();
 };

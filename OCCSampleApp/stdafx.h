@@ -197,4 +197,5 @@
 #include <Graphic3d_GraphicDriver.hxx>
 #include <AIS_InteractiveContext.hxx>
 #include <AIS_Shape.hxx>
-
+#include <NCollection_Array2.hxx>
+#include <TColStd_Array2OfReal.hxx>
