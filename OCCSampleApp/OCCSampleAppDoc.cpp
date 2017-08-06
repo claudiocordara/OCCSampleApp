@@ -23,6 +23,12 @@
 #include <GeomConvert.hxx>
 #include <BRepBuilderAPI_NurbsConvert.hxx>
 #include <BRepLib_FindSurface.hxx>
+#include <BRepPrimAPI_MakeBox.hxx>
+#include <BRepAlgoAPI_Cut.hxx>
+#include <Geom2d_BSplineCurve.hxx>
+#include <Geom2dConvert.hxx>
+#include <BRepCheck_Analyzer.hxx>
+#include <ShapeFix_Face.hxx>
 
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -38,6 +44,9 @@ BEGIN_MESSAGE_MAP(COCCSampleAppDoc, CDocument)
 	ON_COMMAND(ID_TEST_ADDNURBSSURFACE, &COCCSampleAppDoc::OnTestAddNurbsSurface)
 	ON_COMMAND(ID_TEST_ADDRATIONALNURBSSURFACE, &COCCSampleAppDoc::OnTestAddRationalNurbsSurface)
 	ON_COMMAND(ID_TEST_NURBSDUMP, &COCCSampleAppDoc::OnTestNurbsDump)
+	ON_COMMAND(ID_TEST_ADDBOXWITHHOLE, &COCCSampleAppDoc::OnTestAddBoxWithHole)
+	ON_COMMAND(ID_TEST_ADDCIRCLEWITHHOLE, &COCCSampleAppDoc::OnTestAddCircleWithHole)
+	ON_COMMAND(ID_TEST_ADDTRIMMEDNURBSSURFACE, &COCCSampleAppDoc::OnTestAddTrimmedNurbsSurface)
 END_MESSAGE_MAP()
 
 
@@ -329,42 +338,62 @@ bool COCCSampleAppDoc::saveMesh(const Handle(StlMesh_Mesh) &_mesh, std::wstring 
 
 
 void COCCSampleAppDoc::OnTestAddNurbsSurface() {
-	TColgp_Array2OfPnt cpArray(0, 3, 0, 3);
-	cpArray.SetValue(0, 0, gp_Pnt(-6, -6, 0));
-	cpArray.SetValue(0, 1, gp_Pnt(-6, -2, 0));
-	cpArray.SetValue(0, 2, gp_Pnt(-6, 2, 0));
-	cpArray.SetValue(0, 3, gp_Pnt(-6, 6, 0));
-	cpArray.SetValue(1, 0, gp_Pnt(-2, -6, 0));
-	cpArray.SetValue(1, 1, gp_Pnt(-2, -2, 8));
-	cpArray.SetValue(1, 2, gp_Pnt(-2, 2, 8));
-	cpArray.SetValue(1, 3, gp_Pnt(-2, 6, 0));
-	cpArray.SetValue(2, 0, gp_Pnt(2, -6, 0));
-	cpArray.SetValue(2, 1, gp_Pnt(2, -2, 8));
-	cpArray.SetValue(2, 2, gp_Pnt(2, 2, 8));
-	cpArray.SetValue(2, 3, gp_Pnt(2, 6, 0));
-	cpArray.SetValue(3, 0, gp_Pnt(6, -6, 0));
-	cpArray.SetValue(3, 1, gp_Pnt(6, -2, 0));
-	cpArray.SetValue(3, 2, gp_Pnt(6, 2, 0));
-	cpArray.SetValue(3, 3, gp_Pnt(6, 6, 0));
-
-	TColStd_Array1OfReal uKnotsArray(0, 1);
-	uKnotsArray.SetValue(0, 0);
-	uKnotsArray.SetValue(1, 1);
-
-	TColStd_Array1OfReal vKnotsArray(0, 1);
-	vKnotsArray.SetValue(0, 0);
-	vKnotsArray.SetValue(1, 1);
-
-	TColStd_Array1OfInteger uMultsArray(0, 1);
-	uMultsArray.SetValue(0, 4);
-	uMultsArray.SetValue(1, 4);
-
-	TColStd_Array1OfInteger vMultsArray(0, 1);
-	vMultsArray.SetValue(0, 4);
-	vMultsArray.SetValue(1, 4);
-
+	TColgp_Array2OfPnt cpArray(1, 2, 1, 2);
+	cpArray.SetValue(1, 1, gp_Pnt(-50, -50, 0));
+	cpArray.SetValue(1, 2, gp_Pnt(-50, 50, 0));
+	cpArray.SetValue(2, 1, gp_Pnt(50, -50, 0));
+	cpArray.SetValue(2, 2, gp_Pnt(50, 50, 0));
+	TColStd_Array1OfReal uKnotsArray(1, 2);
+	uKnotsArray.SetValue(1, -50);
+	uKnotsArray.SetValue(2, 50);
+	TColStd_Array1OfInteger uMultsArray(1, 2);
+	uMultsArray.SetValue(1, 2);
+	uMultsArray.SetValue(2, 2);
+	TColStd_Array1OfReal vKnotsArray(1, 2);
+	vKnotsArray.SetValue(1, -50);
+	vKnotsArray.SetValue(2, 50);
+	TColStd_Array1OfInteger vMultsArray(1, 2);
+	vMultsArray.SetValue(1, 2);
+	vMultsArray.SetValue(2, 2);
 	Handle(Geom_BSplineSurface) nurbsSurf;
-	nurbsSurf = new Geom_BSplineSurface(cpArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 3, 3);
+	nurbsSurf = new Geom_BSplineSurface(cpArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 1, 1, Standard_False, Standard_False);
+
+	//TColgp_Array2OfPnt cpArray(0, 3, 0, 3);
+	//cpArray.SetValue(0, 0, gp_Pnt(-6, -6, 0));
+	//cpArray.SetValue(0, 1, gp_Pnt(-6, -2, 0));
+	//cpArray.SetValue(0, 2, gp_Pnt(-6, 2, 0));
+	//cpArray.SetValue(0, 3, gp_Pnt(-6, 6, 0));
+	//cpArray.SetValue(1, 0, gp_Pnt(-2, -6, 0));
+	//cpArray.SetValue(1, 1, gp_Pnt(-2, -2, 8));
+	//cpArray.SetValue(1, 2, gp_Pnt(-2, 2, 8));
+	//cpArray.SetValue(1, 3, gp_Pnt(-2, 6, 0));
+	//cpArray.SetValue(2, 0, gp_Pnt(2, -6, 0));
+	//cpArray.SetValue(2, 1, gp_Pnt(2, -2, 8));
+	//cpArray.SetValue(2, 2, gp_Pnt(2, 2, 8));
+	//cpArray.SetValue(2, 3, gp_Pnt(2, 6, 0));
+	//cpArray.SetValue(3, 0, gp_Pnt(6, -6, 0));
+	//cpArray.SetValue(3, 1, gp_Pnt(6, -2, 0));
+	//cpArray.SetValue(3, 2, gp_Pnt(6, 2, 0));
+	//cpArray.SetValue(3, 3, gp_Pnt(6, 6, 0));
+
+	//TColStd_Array1OfReal uKnotsArray(0, 1);
+	//uKnotsArray.SetValue(0, 0);
+	//uKnotsArray.SetValue(1, 1);
+
+	//TColStd_Array1OfReal vKnotsArray(0, 1);
+	//vKnotsArray.SetValue(0, 0);
+	//vKnotsArray.SetValue(1, 1);
+
+	//TColStd_Array1OfInteger uMultsArray(0, 1);
+	//uMultsArray.SetValue(0, 4);
+	//uMultsArray.SetValue(1, 4);
+
+	//TColStd_Array1OfInteger vMultsArray(0, 1);
+	//vMultsArray.SetValue(0, 4);
+	//vMultsArray.SetValue(1, 4);
+
+	//Handle(Geom_BSplineSurface) nurbsSurf;
+	//nurbsSurf = new Geom_BSplineSurface(cpArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 3, 3);
 	
 	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, Precision::Confusion());
 	TopoDS_Face Nurbsface = faceMaker.Face();
@@ -393,199 +422,54 @@ void COCCSampleAppDoc::OnTestAddNurbsSurface() {
 
 
 void COCCSampleAppDoc::OnTestAddRationalNurbsSurface() {
-	//TColgp_Array2OfPnt cpArray(0, 8, 0, 1);
-	//TColStd_Array2OfReal wghArray(0, 8, 0, 1);
-
-
-	////GM_3dCtrlPoint surf_cp;
-	////std::vector<std::vector<GM_3dCtrlPoint> > surfCP;
-	////std::vector<GM_3dCtrlPoint> vCP;
-	////surf_cp.xw(10); surf_cp.yw(-1); surf_cp.zw(33); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surf_cp.xw(10); surf_cp.yw(-1); surf_cp.zw(0); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(0, 0, gp_Pnt(10, -1, 33));
-	//cpArray.SetValue(0, 1, gp_Pnt(10, -1, 0));
-	//wghArray.SetValue(0, 0, 1);
-	//wghArray.SetValue(0, 1, 1);
-
-	////vCP.clear();
-	////surf_cp.xw(6.36396); surf_cp.yw(-7.77817); surf_cp.zw(23.3345); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surf_cp.xw(6.36396); surf_cp.yw(-7.77817); surf_cp.zw(0); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(1, 0, gp_Pnt(6.36396, -7.77817, 23.3345));
-	//cpArray.SetValue(1, 1, gp_Pnt(6.36396, -7.77817, 0));
-	//wghArray.SetValue(1, 0, 0.707107);
-	//wghArray.SetValue(1, 1, 0.707107);
-
-	////vCP.clear();
-	////surf_cp.xw(-1); surf_cp.yw(-10); surf_cp.zw(33); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surf_cp.xw(-1); surf_cp.yw(-10); surf_cp.zw(0); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(2, 0, gp_Pnt(-1, -10, 33));
-	//cpArray.SetValue(2, 1, gp_Pnt(-1, -10, 0));
-	//wghArray.SetValue(2, 0, 1);
-	//wghArray.SetValue(2, 1, 1);
-
-	////vCP.clear();
-	////surf_cp.xw(-7.77817); surf_cp.yw(-6.36396); surf_cp.zw(23.3345); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surf_cp.xw(-7.77817); surf_cp.yw(-6.36396); surf_cp.zw(0); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(3, 0, gp_Pnt(-7.77817, -6.36396, 23.3345));
-	//cpArray.SetValue(3, 1, gp_Pnt(-7.77817, -6.36396, 0));
-	//wghArray.SetValue(3, 0, 0.707107);
-	//wghArray.SetValue(3, 1, 0.707107);
-
-	////vCP.clear();
-	////surf_cp.xw(-10); surf_cp.yw(1); surf_cp.zw(33); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surf_cp.xw(-10); surf_cp.yw(1); surf_cp.zw(0); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(4, 0, gp_Pnt(-10, 1, 33));
-	//cpArray.SetValue(4, 1, gp_Pnt(-10, 1, 0));
-	//wghArray.SetValue(4, 0, 1);
-	//wghArray.SetValue(4, 1, 1);
-
-	////vCP.clear();
-	////surf_cp.xw(-6.36396); surf_cp.yw(7.77817); surf_cp.zw(23.3345); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surf_cp.xw(-6.36396); surf_cp.yw(7.77817); surf_cp.zw(0); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(5, 0, gp_Pnt(-6.36396, 7.77817, 23.3345));
-	//cpArray.SetValue(5, 1, gp_Pnt(-6.36396, 7.77817, 0));
-	//wghArray.SetValue(5, 0, 0.707107);
-	//wghArray.SetValue(5, 1, 0.707107);
-
-	////vCP.clear();
-	////surf_cp.xw(1); surf_cp.yw(10); surf_cp.zw(33); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surf_cp.xw(1); surf_cp.yw(10); surf_cp.zw(0); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(6, 0, gp_Pnt(1, 10, 33));
-	//cpArray.SetValue(6, 1, gp_Pnt(1, 10, 0));
-	//wghArray.SetValue(6, 0, 1);
-	//wghArray.SetValue(6, 1, 1);
-
-	////vCP.clear();
-	////surf_cp.xw(7.77817); surf_cp.yw(6.36396); surf_cp.zw(23.3345); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surf_cp.xw(7.77817); surf_cp.yw(6.36396); surf_cp.zw(0); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(7, 0, gp_Pnt(7.77817, 6.36396, 23.3345));
-	//cpArray.SetValue(7, 1, gp_Pnt(7.77817, 6.36396, 0));
-	//wghArray.SetValue(7, 0, 0.707107);
-	//wghArray.SetValue(7, 1, 0.707107);
-
-	////vCP.clear();
-	////surf_cp.xw(10); surf_cp.yw(-1); surf_cp.zw(33); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surf_cp.xw(10); surf_cp.yw(-1); surf_cp.zw(0); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	////surfCP.push_back(vCP);
-	//cpArray.SetValue(8, 0, gp_Pnt(10, -1, 33));
-	//cpArray.SetValue(8, 1, gp_Pnt(10, -1, 0));
-	//wghArray.SetValue(8, 0, 1);
-	//wghArray.SetValue(8, 1, 1);
-
-	//TColStd_Array1OfReal uKnotsArray(0, 4);
-	//uKnotsArray.SetValue(0, 0);
-	//uKnotsArray.SetValue(1, 15.7863);
-	//uKnotsArray.SetValue(2, 31.5726);
-	//uKnotsArray.SetValue(3, 47.3589);
-	//uKnotsArray.SetValue(4, 63.1452);
-
-	//TColStd_Array1OfReal vKnotsArray(0, 1);
-	//vKnotsArray.SetValue(0, 0);
-	//vKnotsArray.SetValue(1, 33);
-
-	//TColStd_Array1OfInteger uMultsArray(0, 4);
-	//uMultsArray.SetValue(0, 3);
-	//uMultsArray.SetValue(1, 2);
-	//uMultsArray.SetValue(2, 2);
-	//uMultsArray.SetValue(3, 2);
-	//uMultsArray.SetValue(4, 3);
-
-	//TColStd_Array1OfInteger vMultsArray(0, 1);
-	//vMultsArray.SetValue(0, 2);
-	//vMultsArray.SetValue(1, 2);
-
-	TColgp_Array2OfPnt cpArray(0, 1, 0, 8);
-	TColStd_Array2OfReal wghArray(0, 1, 0, 8);
-
-	//surf_cp.xw(5); surf_cp.yw(16); surf_cp.zw(9); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(4.24264); surf_cp.yw(11.3137); surf_cp.zw(9.89949); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(1); surf_cp.yw(16); surf_cp.zw(15); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(-2.82843); surf_cp.yw(11.3137); surf_cp.zw(11.3137); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(-5); surf_cp.yw(16); surf_cp.zw(11); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(-4.24264); surf_cp.yw(11.3137); surf_cp.zw(4.24264); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(-1); surf_cp.yw(16); surf_cp.zw(5); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(2.82843); surf_cp.yw(11.3137); surf_cp.zw(2.82843); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(5); surf_cp.yw(16); surf_cp.zw(9); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	cpArray.SetValue(0, 0, gp_Pnt(5, 16, 9));
-	cpArray.SetValue(0, 1, gp_Pnt(4.24264, 11.3137, 9.89949));
-	cpArray.SetValue(0, 2, gp_Pnt(1, 16, 15));
-	cpArray.SetValue(0, 3, gp_Pnt(-2.82843, 11.3137, 11.3137));
-	cpArray.SetValue(0, 4, gp_Pnt(-5, 16, 11));
-	cpArray.SetValue(0, 5, gp_Pnt(-4.24264, 11.3137, 4.24264));
-	cpArray.SetValue(0, 6, gp_Pnt(-1, 16, 5));
-	cpArray.SetValue(0, 7, gp_Pnt(2.82843, 11.3137, 2.82843));
-	cpArray.SetValue(0, 8, gp_Pnt(5, 16, 9));
-	wghArray.SetValue(0, 0, 1);
-	wghArray.SetValue(0, 1, 1);
-	wghArray.SetValue(0, 2, 1);
-	wghArray.SetValue(0, 3, 1);
-	wghArray.SetValue(0, 4, 1);
-	wghArray.SetValue(0, 5, 1);
-	wghArray.SetValue(0, 6, 1);
-	wghArray.SetValue(0, 7, 1);
-	wghArray.SetValue(0, 8, 1);
-
-
-	//surf_cp.xw(5); surf_cp.yw(-15); surf_cp.zw(9); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(4.24264); surf_cp.yw(-10.6066); surf_cp.zw(9.89949); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(1); surf_cp.yw(-15); surf_cp.zw(15); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(-2.82843); surf_cp.yw(-10.6066); surf_cp.zw(11.3137); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(-5); surf_cp.yw(-15); surf_cp.zw(11); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(-4.24264); surf_cp.yw(-10.6066); surf_cp.zw(4.24264); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(-1); surf_cp.yw(-15); surf_cp.zw(5); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	//surf_cp.xw(2.82843); surf_cp.yw(-10.6066); surf_cp.zw(2.82843); surf_cp.wOnly(0.707107); vCP.push_back(surf_cp);
-	//surf_cp.xw(5); surf_cp.yw(-15); surf_cp.zw(9); surf_cp.wOnly(1); vCP.push_back(surf_cp);
-	cpArray.SetValue(1, 0, gp_Pnt(5, -15, 9));
-	cpArray.SetValue(1, 1, gp_Pnt(4.24264, -10.6066, 9.89949));
-	cpArray.SetValue(1, 2, gp_Pnt(1, -15, 15));
-	cpArray.SetValue(1, 3, gp_Pnt(-2.82843, -10.6066, 11.3137));
-	cpArray.SetValue(1, 4, gp_Pnt(-5, -15, 11));
-	cpArray.SetValue(1, 5, gp_Pnt(-4.24264, -10.6066, 4.24264));
-	cpArray.SetValue(1, 6, gp_Pnt(-1, -15, 5));
-	cpArray.SetValue(1, 7, gp_Pnt(2.82843, -10.6066, 2.82843));
-	cpArray.SetValue(1, 8, gp_Pnt(5, -15, 9));
-	wghArray.SetValue(1, 0, 1);
+	TColgp_Array2OfPnt cpArray(1, 7, 1, 2);
+	TColStd_Array2OfReal wghArray(1, 7, 1, 2);
+	cpArray.SetValue(1, 1, gp_Pnt(10, 0, 0));
+	cpArray.SetValue(1, 2, gp_Pnt(10, 0, 25));
+	cpArray.SetValue(2, 1, gp_Pnt(10, 17.3205, 0));
+	cpArray.SetValue(2, 2, gp_Pnt(10, 17.3205, 25));
+	cpArray.SetValue(3, 1, gp_Pnt(-5, 8.66025, 0));
+	cpArray.SetValue(3, 2, gp_Pnt(-5, 8.66025, 25));
+	cpArray.SetValue(4, 1, gp_Pnt(-20, 2.44929e-15, 0));
+	cpArray.SetValue(4, 2, gp_Pnt(-20, 2.44929e-15, 25));
+	cpArray.SetValue(5, 1, gp_Pnt(-5, -8.66025, 0));
+	cpArray.SetValue(5, 2, gp_Pnt(-5, -8.66025, 25));
+	cpArray.SetValue(6, 1, gp_Pnt(10, -17.3205, 0));
+	cpArray.SetValue(6, 2, gp_Pnt(10, -17.3205, 25));
+	cpArray.SetValue(7, 1, gp_Pnt(10, -2.44929e-15, 0));
+	cpArray.SetValue(7, 2, gp_Pnt(10, -2.44929e-15, 25));
 	wghArray.SetValue(1, 1, 1);
 	wghArray.SetValue(1, 2, 1);
-	wghArray.SetValue(1, 3, 1);
-	wghArray.SetValue(1, 4, 1);
-	wghArray.SetValue(1, 5, 1);
-	wghArray.SetValue(1, 6, 1);
-	wghArray.SetValue(1, 7, 1);
-	wghArray.SetValue(1, 8, 1);
-
-	TColStd_Array1OfReal uKnotsArray(0, 1);
-	uKnotsArray.SetValue(0, 0);
-	uKnotsArray.SetValue(1, 31);
-
-	TColStd_Array1OfInteger uMultsArray(0, 1);
-	uMultsArray.SetValue(0, 2);
-	uMultsArray.SetValue(1, 2);
-
-	TColStd_Array1OfReal vKnotsArray(0, 4);
-	vKnotsArray.SetValue(0, 0);
-	vKnotsArray.SetValue(1, 8.00952);
-	vKnotsArray.SetValue(2, 16.019);
-	vKnotsArray.SetValue(3, 24.0286);
-	vKnotsArray.SetValue(4, 32.0381);
-
-	TColStd_Array1OfInteger vMultsArray(0, 4);
-	vMultsArray.SetValue(0, 3);
+	wghArray.SetValue(2, 1, 0.5);
+	wghArray.SetValue(2, 2, 0.5);
+	wghArray.SetValue(3, 1, 1);
+	wghArray.SetValue(3, 2, 1);
+	wghArray.SetValue(4, 1, 0.5);
+	wghArray.SetValue(4, 2, 0.5);
+	wghArray.SetValue(5, 1, 1);
+	wghArray.SetValue(5, 2, 1);
+	wghArray.SetValue(6, 1, 0.5);
+	wghArray.SetValue(6, 2, 0.5);
+	wghArray.SetValue(7, 1, 1);
+	wghArray.SetValue(7, 2, 1);
+	TColStd_Array1OfReal uKnotsArray(1, 4);
+	uKnotsArray.SetValue(1, 0);
+	uKnotsArray.SetValue(2, 2.0944);
+	uKnotsArray.SetValue(3, 4.18879);
+	uKnotsArray.SetValue(4, 6.28319);
+	TColStd_Array1OfInteger uMultsArray(1, 4);
+	uMultsArray.SetValue(1, 3);
+	uMultsArray.SetValue(2, 2);
+	uMultsArray.SetValue(3, 2);
+	uMultsArray.SetValue(4, 3);
+	TColStd_Array1OfReal vKnotsArray(1, 2);
+	vKnotsArray.SetValue(1, 0);
+	vKnotsArray.SetValue(2, 25);
+	TColStd_Array1OfInteger vMultsArray(1, 2);
 	vMultsArray.SetValue(1, 2);
 	vMultsArray.SetValue(2, 2);
-	vMultsArray.SetValue(3, 2);
-	vMultsArray.SetValue(4, 3);
-
 	Handle(Geom_BSplineSurface) nurbsSurf;
-	nurbsSurf = new Geom_BSplineSurface(cpArray, wghArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 1, 2, false, false);
+	nurbsSurf = new Geom_BSplineSurface(cpArray, wghArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 2, 1, Standard_False, Standard_False);
 
 	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, Precision::Confusion());
 	TopoDS_Face Nurbsface = faceMaker.Face();
@@ -609,7 +493,7 @@ void COCCSampleAppDoc::OnTestAddRationalNurbsSurface() {
 
 	Handle(StlMesh_Mesh) aShapeMesh;
 	generateMesh(Nurbsface, 0.01, 0.5, aShapeMesh);
-	saveMesh(aShapeMesh, L"C:\\Sviluppo\\OCCSampleApp\\nurbsRatMesh.stl");
+	saveMesh(aShapeMesh, L"F:\\Sviluppo\\OCCSampleApp\\nurbsRatMesh.stl");
 
 	//vCP.clear();
 	//std::vector<double> uKnotArray;
@@ -637,26 +521,129 @@ void COCCSampleAppDoc::OnTestAddRationalNurbsSurface() {
 
 
 bool COCCSampleAppDoc::dumpNurbs(TopoDS_Shape _shape) {
-	TopAbs_ShapeEnum shapeEnum = _shape.ShapeType();
+	std::ofstream outputFile;
+	outputFile.open("C:\\temp\\OCCNurbsDump.txt", std::ofstream::out | std::ofstream::binary);
+	if (outputFile.good() == true) {
+		TopAbs_ShapeEnum shapeEnum = _shape.ShapeType();
+		TopExp_Explorer shapeExpl(_shape, TopAbs_FACE);
+		while (shapeExpl.More() == Standard_True) {
+			TopoDS_Shape aShapeFace = shapeExpl.Current();
 
-	Standard_Boolean moreFlag = true;
-	TopExp_Explorer shapeExpl(_shape, TopAbs_FACE);
-	do {
-		TopoDS_Shape aShapeFace = shapeExpl.Current();
+			TopoDS_Face aFace = TopoDS::Face(aShapeFace);
+			BRepBuilderAPI_NurbsConvert nurbs(aFace);
+			Handle(Geom_Surface) geom_Extrusion = BRepLib_FindSurface(nurbs.Shape()).Surface();
+			Handle(Geom_BSplineSurface) geombspline_Extrusion = GeomConvert::SurfaceToBSplineSurface(geom_Extrusion);
 
-		TopoDS_Face aFace = TopoDS::Face(aShapeFace);
-		BRepBuilderAPI_NurbsConvert nurbs(aFace);
-		Handle(Geom_Surface) geom_Extrusion = BRepLib_FindSurface(nurbs.Shape()).Surface();
-		Handle(Geom_BSplineSurface) geombspline_Extrusion = GeomConvert::SurfaceToBSplineSurface(geom_Extrusion);
+			TColgp_Array2OfPnt cpArray = geombspline_Extrusion->Poles();
+			TColStd_Array1OfReal uKnotsArray = geombspline_Extrusion->UKnots();
+			TColStd_Array1OfReal vKnotsArray = geombspline_Extrusion->VKnots();
+			TColStd_Array1OfInteger uMultsArray = geombspline_Extrusion->UMultiplicities();
+			TColStd_Array1OfInteger vMultsArray = geombspline_Extrusion->VMultiplicities();
+			const TColStd_Array2OfReal *wghArray = geombspline_Extrusion->Weights();
+			Standard_Integer uDegree = geombspline_Extrusion->UDegree();
+			Standard_Integer vDegree = geombspline_Extrusion->VDegree();
+			Standard_Boolean isUPeriodic = geombspline_Extrusion->IsUPeriodic();
+			Standard_Boolean isVPeriodic = geombspline_Extrusion->IsVPeriodic();
 
-		moreFlag = shapeExpl.More();
-		if (moreFlag == Standard_True) {
+			outputFile << "TColgp_Array2OfPnt cpArray(" << cpArray.LowerRow() << "," << cpArray.UpperRow() << "," << cpArray.LowerCol() << "," << cpArray.UpperCol() << ");" << std::endl;
+			if (wghArray != NULL) {
+				outputFile << "TColStd_Array2OfReal wghArray(" << wghArray->LowerRow() << "," << wghArray->UpperRow() << "," << wghArray->LowerCol() << "," << wghArray->UpperCol() << ");" << std::endl;
+			}
+			for (int i = cpArray.LowerRow(); i <= cpArray.UpperRow(); i++) {
+				for (int j = cpArray.LowerCol(); j <= cpArray.UpperCol(); j++) {
+					outputFile << "cpArray.SetValue(" << i << "," << j << ",gp_Pnt(" << cpArray.Value(i, j).X() << "," << cpArray.Value(i, j).Y() << "," << cpArray.Value(i, j).Z() << "));" << std::endl;
+				}
+			}
+			if (wghArray != NULL) {
+				for (int i = wghArray->LowerRow(); i <= wghArray->UpperRow(); i++) {
+					for (int j = wghArray->LowerCol(); j <= wghArray->UpperCol(); j++) {
+						outputFile << "wghArray.SetValue(" << i << "," << j << "," << wghArray->Value(i, j) << ");" << std::endl;
+					}
+				}
+			}
+
+			outputFile << "TColStd_Array1OfReal uKnotsArray(" << uKnotsArray.Lower() << "," << uKnotsArray.Upper() << ");" << std::endl;
+			for (int i = uKnotsArray.Lower(); i <= uKnotsArray.Upper(); i++) {
+				outputFile << "uKnotsArray.SetValue(" << i << "," << uKnotsArray.Value(i) << ");" << std::endl;
+			}
+			outputFile << "TColStd_Array1OfInteger uMultsArray(" << uMultsArray.Lower() << "," << uMultsArray.Upper() << ");" << std::endl;
+			for (int i = uMultsArray.Lower(); i <= uMultsArray.Upper(); i++) {
+				outputFile << "uMultsArray.SetValue(" << i << "," << uMultsArray.Value(i) << ");" << std::endl;
+			}
+
+
+			outputFile << "TColStd_Array1OfReal vKnotsArray(" << vKnotsArray.Lower() << "," << vKnotsArray.Upper() << ");" << std::endl;
+			for (int i = vKnotsArray.Lower(); i <= vKnotsArray.Upper(); i++) {
+				outputFile << "vKnotsArray.SetValue(" << i << "," << vKnotsArray.Value(i) << ");" << std::endl;
+			}
+			outputFile << "TColStd_Array1OfInteger vMultsArray(" << vMultsArray.Lower() << "," << vMultsArray.Upper() << ");" << std::endl;
+			for (int i = vMultsArray.Lower(); i <= vMultsArray.Upper(); i++) {
+				outputFile << "vMultsArray.SetValue(" << i << "," << vMultsArray.Value(i) << ");" << std::endl;
+			}
+
+			outputFile << "Handle(Geom_BSplineSurface) nurbsSurf;" << std::endl;
+			outputFile << "nurbsSurf = new Geom_BSplineSurface(cpArray, " << (wghArray != NULL ? "wghArray, " : "") << "uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, " << uDegree << "," << vDegree << "," << (isUPeriodic == Standard_True ? "Standard_True" : "Standard_False") << "," << (isVPeriodic == Standard_True ? "Standard_True" : "Standard_False") << ");" << std::endl;
+
+			outputFile << std::endl << std::endl << std::endl;
+
+			int edgeCounter = 0;
+			TopExp_Explorer edgeExpl(_shape, TopAbs_EDGE);
+			while (edgeExpl.More() == Standard_True) {
+				TopoDS_Shape aShapeEdge = edgeExpl.Current();
+				TopoDS_Edge aEdge = TopoDS::Edge(aShapeEdge);
+
+
+				Standard_Real aFirst, aLast, aPFirst, aPLast;
+				Handle(Geom_Curve) aCurve3d = BRep_Tool::Curve(aEdge, aFirst, aLast);
+				Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(aEdge, aFace, aPFirst, aPLast);
+				Handle(Geom2d_BSplineCurve) nurbsCurve = Geom2dConvert::CurveToBSplineCurve(aPCurve, Convert_RationalC1);
+
+				TColgp_Array1OfPnt2d cpArrayTrimCurve = nurbsCurve->Poles();
+				const TColStd_Array1OfReal *wghArrayTrimCurve = nurbsCurve->Weights();
+				TColStd_Array1OfReal knotsArrayTrimCurve = nurbsCurve->Knots();
+				TColStd_Array1OfInteger multsArrayTrimCurve = nurbsCurve->Multiplicities();
+
+				outputFile << "TColgp_Array1OfPnt2d cpArrayTrimCurve" << edgeCounter << "(" << cpArrayTrimCurve.Lower() << "," << cpArrayTrimCurve.Upper() << ");" << std::endl;
+				if (wghArrayTrimCurve != NULL) {
+					outputFile << "TColStd_Array1OfReal wghArrayTrimCurve" << edgeCounter << "(" << wghArrayTrimCurve->Lower() << "," << wghArrayTrimCurve->Upper() << ");" << std::endl;
+				}
+				for (int i = cpArrayTrimCurve.Lower(); i <= cpArrayTrimCurve.Upper(); i++) {
+					outputFile << "cpArrayTrimCurve" << edgeCounter <<".SetValue(" << i << ",gp_Pnt2d(" << cpArrayTrimCurve.Value(i).X() << "," << cpArrayTrimCurve.Value(i).Y() << "));" << std::endl;
+				}
+				if (wghArrayTrimCurve != NULL) {
+					for (int i = wghArrayTrimCurve->Lower(); i <= wghArrayTrimCurve->Upper(); i++) {
+						outputFile << "wghArrayTrimCurve" << edgeCounter << ".SetValue(" << i << "," << wghArrayTrimCurve->Value(i) << ");" << std::endl;
+					}
+				}
+				outputFile << "TColStd_Array1OfReal knotsArrayTrimCurve" << edgeCounter << "(" << knotsArrayTrimCurve.Lower() << "," << knotsArrayTrimCurve.Upper() << ");" << std::endl;
+				for (int i = knotsArrayTrimCurve.Lower(); i <= knotsArrayTrimCurve.Upper(); i++) {
+					outputFile << "knotsArrayTrimCurve" << edgeCounter << ".SetValue(" << i << "," << knotsArrayTrimCurve.Value(i) << ");" << std::endl;
+				}
+				outputFile << "TColStd_Array1OfInteger multsArrayTrimCurve" << edgeCounter << "(" << multsArrayTrimCurve.Lower() << "," << multsArrayTrimCurve.Upper() << ");" << std::endl;
+				for (int i = multsArrayTrimCurve.Lower(); i <= multsArrayTrimCurve.Upper(); i++) {
+					outputFile << "multsArrayTrimCurve" << edgeCounter << ".SetValue(" << i << "," << multsArrayTrimCurve.Value(i) << ");" << std::endl;
+				}
+				outputFile << "Handle(Geom2d_BSplineCurve) trimCurve" << edgeCounter << ";" << std::endl;
+				outputFile << "trimCurve" << edgeCounter << " = new Geom2d_BSplineCurve(cpArrayTrimCurve" << edgeCounter << ",";
+				if (wghArrayTrimCurve != NULL) {
+					outputFile << "wghArrayTrimCurve" << edgeCounter << ",";
+				}
+				outputFile << "knotsArrayTrimCurve" << edgeCounter << ",multsArrayTrimCurve" << edgeCounter << "," << nurbsCurve->Degree() << "," << (nurbsCurve->IsPeriodic() == Standard_True ? "Standard_True" : "Standard_False") << ");" << std::endl;
+
+				edgeExpl.Next();
+				edgeCounter++;
+			}
+
+
 			shapeExpl.Next();
 		}
+
+
 	}
-	while (moreFlag == Standard_True);
 
+	outputFile.close();
 
+	return true;
 }
 
 
@@ -668,4 +655,230 @@ void COCCSampleAppDoc::OnTestNurbsDump() {
 	TopoDS_Shape aShape = aCylinder.Shape();
 
 	dumpNurbs(aShape);
+}
+
+
+void COCCSampleAppDoc::OnTestAddBoxWithHole() {
+	gp_Pnt lowerLeftCornerOfBox(-50.0, -50.0, 0.0);
+	BRepPrimAPI_MakeBox boxMaker(lowerLeftCornerOfBox, 100, 100, 50);
+	TopoDS_Shape box = boxMaker.Shape();
+
+	BRepPrimAPI_MakeCylinder cylinderMaker(25.0, 50.0);
+	TopoDS_Shape cylinder = cylinderMaker.Shape();
+
+	//Cut the cylinder out from the box
+	BRepAlgoAPI_Cut cutMaker(box, cylinder);
+	TopoDS_Shape boxWithHole = cutMaker.Shape();
+	boxWithHoleShape = new AIS_Shape(boxWithHole);
+
+	if (boxWithHoleShape.IsNull() == false) {
+
+		// Add the new sphere to the graphic context
+		myAISContext->SetDisplayMode(boxWithHoleShape, AIS_Shaded);
+		myAISContext->Display(boxWithHoleShape);  // Draw the Sphere on the Screen  
+		myAISContext->DisplayAll();
+
+		// Update the viewer
+		myViewer->InitActiveViews();
+		Handle(V3d_View) activeView = myViewer->ActiveView();
+		if (activeView.IsNull() == false) {
+			activeView->FitAll();           // Focus to the View to the Drawn Shape.  
+		}
+	}
+}
+
+
+void COCCSampleAppDoc::OnTestAddCircleWithHole() {
+	gp_Circ circ(gp::XOY(), 50);
+	TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(circ);
+	TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge);
+	TopoDS_Face face = BRepBuilderAPI_MakeFace(wire, Standard_True);
+
+	BRepPrimAPI_MakeCylinder cylinderMaker(25.0, 50.0);
+	TopoDS_Shape cylinder = cylinderMaker.Shape();
+
+	BRepAlgoAPI_Cut cutMaker(face, cylinder);
+	TopoDS_Shape circleWithHole = cutMaker.Shape();
+
+	dumpNurbs(circleWithHole);
+
+	circleWithHoleShape = new AIS_Shape(circleWithHole);
+
+	if (circleWithHoleShape.IsNull() == false) {
+
+		// Add the new sphere to the graphic context
+		myAISContext->SetDisplayMode(circleWithHoleShape, AIS_Shaded);
+		myAISContext->Display(circleWithHoleShape);  // Draw the Sphere on the Screen  
+		myAISContext->DisplayAll();
+
+		// Update the viewer
+		myViewer->InitActiveViews();
+		Handle(V3d_View) activeView = myViewer->ActiveView();
+		if (activeView.IsNull() == false) {
+			activeView->FitAll();           // Focus to the View to the Drawn Shape.  
+		}
+	}
+}
+
+
+void COCCSampleAppDoc::OnTestAddTrimmedNurbsSurface() {
+	TColgp_Array2OfPnt cpArray(1, 2, 1, 2);
+	cpArray.SetValue(1, 1, gp_Pnt(-50, -50, 0));
+	cpArray.SetValue(1, 2, gp_Pnt(-50, 50, 0));
+	cpArray.SetValue(2, 1, gp_Pnt(50, -50, 0));
+	cpArray.SetValue(2, 2, gp_Pnt(50, 50, 0));
+	TColStd_Array1OfReal uKnotsArray(1, 2);
+	uKnotsArray.SetValue(1, -50);
+	uKnotsArray.SetValue(2, 50);
+	TColStd_Array1OfInteger uMultsArray(1, 2);
+	uMultsArray.SetValue(1, 2);
+	uMultsArray.SetValue(2, 2);
+	TColStd_Array1OfReal vKnotsArray(1, 2);
+	vKnotsArray.SetValue(1, -50);
+	vKnotsArray.SetValue(2, 50);
+	TColStd_Array1OfInteger vMultsArray(1, 2);
+	vMultsArray.SetValue(1, 2);
+	vMultsArray.SetValue(2, 2);
+	Handle(Geom_BSplineSurface) nurbsSurf;
+	nurbsSurf = new Geom_BSplineSurface(cpArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 1, 1, Standard_False, Standard_False);
+
+
+
+	TColgp_Array1OfPnt2d cpArrayTrimCurve0(1, 12);
+	TColStd_Array1OfReal wghArrayTrimCurve0(1, 12);
+	cpArrayTrimCurve0.SetValue(1, gp_Pnt2d(50, -19.635));
+	cpArrayTrimCurve0.SetValue(2, gp_Pnt2d(50, 19.635));
+	cpArrayTrimCurve0.SetValue(3, gp_Pnt2d(39.7355, 37.7257));
+	cpArrayTrimCurve0.SetValue(4, gp_Pnt2d(21.803, 50));
+	cpArrayTrimCurve0.SetValue(5, gp_Pnt2d(-21.803, 50));
+	cpArrayTrimCurve0.SetValue(6, gp_Pnt2d(-39.7355, 37.7257));
+	cpArrayTrimCurve0.SetValue(7, gp_Pnt2d(-50, 19.635));
+	cpArrayTrimCurve0.SetValue(8, gp_Pnt2d(-50, -19.635));
+	cpArrayTrimCurve0.SetValue(9, gp_Pnt2d(-39.7355, -37.7257));
+	cpArrayTrimCurve0.SetValue(10, gp_Pnt2d(-21.803, -50));
+	cpArrayTrimCurve0.SetValue(11, gp_Pnt2d(21.803, -50));
+	cpArrayTrimCurve0.SetValue(12, gp_Pnt2d(39.7355, -37.7257));
+	wghArrayTrimCurve0.SetValue(1, 2);
+	wghArrayTrimCurve0.SetValue(2, 2);
+	wghArrayTrimCurve0.SetValue(3, 2.00318);
+	wghArrayTrimCurve0.SetValue(4, 1.93961);
+	wghArrayTrimCurve0.SetValue(5, 1.93961);
+	wghArrayTrimCurve0.SetValue(6, 2.00318);
+	wghArrayTrimCurve0.SetValue(7, 2);
+	wghArrayTrimCurve0.SetValue(8, 2);
+	wghArrayTrimCurve0.SetValue(9, 2.00318);
+	wghArrayTrimCurve0.SetValue(10, 1.93961);
+	wghArrayTrimCurve0.SetValue(11, 1.93961);
+	wghArrayTrimCurve0.SetValue(12, 2.00318);
+	TColStd_Array1OfReal knotsArrayTrimCurve0(1, 5);
+	knotsArrayTrimCurve0.SetValue(1, 0);
+	knotsArrayTrimCurve0.SetValue(2, 1.5708);
+	knotsArrayTrimCurve0.SetValue(3, 3.14159);
+	knotsArrayTrimCurve0.SetValue(4, 4.71239);
+	knotsArrayTrimCurve0.SetValue(5, 6.28319);
+	TColStd_Array1OfInteger multsArrayTrimCurve0(1, 5);
+	multsArrayTrimCurve0.SetValue(1, 3);
+	multsArrayTrimCurve0.SetValue(2, 3);
+	multsArrayTrimCurve0.SetValue(3, 3);
+	multsArrayTrimCurve0.SetValue(4, 3);
+	multsArrayTrimCurve0.SetValue(5, 3);
+	Handle(Geom2d_BSplineCurve) trimCurve0;
+	trimCurve0 = new Geom2d_BSplineCurve(cpArrayTrimCurve0, wghArrayTrimCurve0, knotsArrayTrimCurve0, multsArrayTrimCurve0, 4, Standard_True);
+	TColgp_Array1OfPnt2d cpArrayTrimCurve1(1, 12);
+	TColStd_Array1OfReal wghArrayTrimCurve1(1, 12);
+	cpArrayTrimCurve1.SetValue(1, gp_Pnt2d(25, -9.81748));
+	cpArrayTrimCurve1.SetValue(2, gp_Pnt2d(25, 9.81748));
+	cpArrayTrimCurve1.SetValue(3, gp_Pnt2d(19.8677, 18.8629));
+	cpArrayTrimCurve1.SetValue(4, gp_Pnt2d(10.9015, 25));
+	cpArrayTrimCurve1.SetValue(5, gp_Pnt2d(-10.9015, 25));
+	cpArrayTrimCurve1.SetValue(6, gp_Pnt2d(-19.8677, 18.8629));
+	cpArrayTrimCurve1.SetValue(7, gp_Pnt2d(-25, 9.81748));
+	cpArrayTrimCurve1.SetValue(8, gp_Pnt2d(-25, -9.81748));
+	cpArrayTrimCurve1.SetValue(9, gp_Pnt2d(-19.8677, -18.8629));
+	cpArrayTrimCurve1.SetValue(10, gp_Pnt2d(-10.9015, -25));
+	cpArrayTrimCurve1.SetValue(11, gp_Pnt2d(10.9015, -25));
+	cpArrayTrimCurve1.SetValue(12, gp_Pnt2d(19.8677, -18.8629));
+	wghArrayTrimCurve1.SetValue(1, 2);
+	wghArrayTrimCurve1.SetValue(2, 2);
+	wghArrayTrimCurve1.SetValue(3, 2.00318);
+	wghArrayTrimCurve1.SetValue(4, 1.93961);
+	wghArrayTrimCurve1.SetValue(5, 1.93961);
+	wghArrayTrimCurve1.SetValue(6, 2.00318);
+	wghArrayTrimCurve1.SetValue(7, 2);
+	wghArrayTrimCurve1.SetValue(8, 2);
+	wghArrayTrimCurve1.SetValue(9, 2.00318);
+	wghArrayTrimCurve1.SetValue(10, 1.93961);
+	wghArrayTrimCurve1.SetValue(11, 1.93961);
+	wghArrayTrimCurve1.SetValue(12, 2.00318);
+	TColStd_Array1OfReal knotsArrayTrimCurve1(1, 5);
+	knotsArrayTrimCurve1.SetValue(1, 0);
+	knotsArrayTrimCurve1.SetValue(2, 1.5708);
+	knotsArrayTrimCurve1.SetValue(3, 3.14159);
+	knotsArrayTrimCurve1.SetValue(4, 4.71239);
+	knotsArrayTrimCurve1.SetValue(5, 6.28319);
+	TColStd_Array1OfInteger multsArrayTrimCurve1(1, 5);
+	multsArrayTrimCurve1.SetValue(1, 3);
+	multsArrayTrimCurve1.SetValue(2, 3);
+	multsArrayTrimCurve1.SetValue(3, 3);
+	multsArrayTrimCurve1.SetValue(4, 3);
+	multsArrayTrimCurve1.SetValue(5, 3);
+	Handle(Geom2d_BSplineCurve) trimCurve1;
+	trimCurve1 = new Geom2d_BSplineCurve(cpArrayTrimCurve1, wghArrayTrimCurve1, knotsArrayTrimCurve1, multsArrayTrimCurve1, 4, Standard_True);
+
+
+	
+	TopoDS_Edge edge0 = BRepBuilderAPI_MakeEdge(trimCurve0, nurbsSurf);
+	TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(trimCurve1, nurbsSurf);
+	BRepBuilderAPI_MakeWire wireMaker0;
+	wireMaker0.Add(edge0);
+	BRepBuilderAPI_MakeWire wireMaker1;
+	wireMaker1.Add(edge1);
+
+	TopoDS_Wire wire0 = wireMaker0.Wire();
+	TopoDS_Wire wire1 = wireMaker1.Wire();
+
+	Standard_Boolean isWire0Closed = wire0.Closed();
+	Standard_Boolean isWire1Closed = wire1.Closed();
+
+
+	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, Precision::Confusion());
+	//faceMaker.Add(wire0);
+	//faceMaker.Add(wire1);
+	TopoDS_Face Nurbsface = faceMaker.Face();
+
+	BRepBuilderAPI_MakeFace faceMaker1(Nurbsface, wire0);
+	TopoDS_Face Nurbsface1 = faceMaker1.Face();
+
+	BRepCheck_Analyzer faceAnalyzer(Nurbsface1);
+	Standard_Boolean isFaceValid = faceAnalyzer.IsValid();
+
+	ShapeFix_Face faceFix(Nurbsface1);
+	faceFix.FixIntersectingWires();
+	faceFix.FixMissingSeam();
+	faceFix.FixOrientation();
+	faceFix.Perform();
+
+	TopoDS_Face builtFace = faceFix.Face();
+
+
+	trimmedNurbsShape = new AIS_Shape(builtFace);
+	if (trimmedNurbsShape.IsNull() == false) {
+
+		// Add the new sphere to the graphic context
+		myAISContext->SetDisplayMode(trimmedNurbsShape, AIS_Shaded);
+		myAISContext->Display(trimmedNurbsShape);  // Draw the Sphere on the Screen  
+		myAISContext->DisplayAll();
+
+		// Update the viewer
+		myViewer->InitActiveViews();
+		Handle(V3d_View) activeView = myViewer->ActiveView();
+		if (activeView.IsNull() == false) {
+			activeView->FitAll();           // Focus to the View to the Drawn Shape.  
+		}
+	}
+
+
+	Handle(StlMesh_Mesh) aShapeMesh;
+	generateMesh(Nurbsface, 0.01, 0.5, aShapeMesh);
+	saveMesh(aShapeMesh, L"F:\\Sviluppo\\OCCSampleApp\\nurbsTrimMesh.stl");
 }

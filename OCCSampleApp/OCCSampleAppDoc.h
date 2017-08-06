@@ -59,6 +59,9 @@ private:
 	Handle(V3d_Viewer) myViewer;						///< 3d viewer instance
 	Handle(AIS_Shape) sphereShape;						///< Sample object (a sphere)
 	Handle(AIS_Shape) nurbsShape;
+	Handle(AIS_Shape) boxWithHoleShape;
+	Handle(AIS_Shape) circleWithHoleShape;
+	Handle(AIS_Shape) trimmedNurbsShape;
 
 
 public:
@@ -73,4 +76,7 @@ public:
 	afx_msg void OnTestAddNurbsSurface();
 	afx_msg void OnTestAddRationalNurbsSurface();
 	afx_msg void OnTestNurbsDump();
+	afx_msg void OnTestAddBoxWithHole();
+	afx_msg void OnTestAddCircleWithHole();
+	afx_msg void OnTestAddTrimmedNurbsSurface();
 };
