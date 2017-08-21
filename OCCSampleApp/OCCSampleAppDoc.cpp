@@ -702,6 +702,29 @@ void COCCSampleAppDoc::OnTestAddCircleWithHole() {
 
 	dumpNurbs(circleWithHole);
 
+
+
+	//Standard_Boolean CImportExport::SaveBREP(CString             aFileName,
+	//	const TopoDS_Shape& aShape)
+	//{
+	//	std::filebuf aFileBuf;
+	//	std::ostream aStream(&aFileBuf);
+	//	if (!aFileBuf.open(aFileName, ios::out))
+	//	{
+	//		return Standard_False;
+	//	}
+
+	//	BRepTools::Write(aShape, aStream);
+	//	return Standard_True;
+	//}
+
+	std::filebuf aFileBuf;
+	std::ostream aStream(&aFileBuf);
+	if (aFileBuf.open("F:\\Sviluppo\\OCCSampleApp\\OCCNurbsDump.brep", ios::out)) {
+		BRepTools::Write(circleWithHole, aStream);
+	}
+	aFileBuf.close();
+
 	circleWithHoleShape = new AIS_Shape(circleWithHole);
 
 	if (circleWithHoleShape.IsNull() == false) {
@@ -741,8 +764,6 @@ void COCCSampleAppDoc::OnTestAddTrimmedNurbsSurface() {
 	vMultsArray.SetValue(2, 2);
 	Handle(Geom_BSplineSurface) nurbsSurf;
 	nurbsSurf = new Geom_BSplineSurface(cpArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 1, 1, Standard_False, Standard_False);
-
-
 
 	TColgp_Array1OfPnt2d cpArrayTrimCurve0(1, 12);
 	TColStd_Array1OfReal wghArrayTrimCurve0(1, 12);
@@ -826,58 +847,72 @@ void COCCSampleAppDoc::OnTestAddTrimmedNurbsSurface() {
 	trimCurve1 = new Geom2d_BSplineCurve(cpArrayTrimCurve1, wghArrayTrimCurve1, knotsArrayTrimCurve1, multsArrayTrimCurve1, 4, Standard_True);
 
 
-	
-	TopoDS_Edge edge0 = BRepBuilderAPI_MakeEdge(trimCurve0, nurbsSurf);
-	TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(trimCurve1, nurbsSurf);
+	// Create edges
+	BRepBuilderAPI_MakeEdge makeEdge0(trimCurve0, nurbsSurf);
+	TopoDS_Edge edge0 = makeEdge0.Edge();
+	BRepBuilderAPI_MakeEdge makeEdge1(trimCurve1, nurbsSurf);
+	TopoDS_Edge edge1 = makeEdge1.Edge();
+
+	// Create wires
 	BRepBuilderAPI_MakeWire wireMaker0;
 	wireMaker0.Add(edge0);
 	BRepBuilderAPI_MakeWire wireMaker1;
 	wireMaker1.Add(edge1);
-
 	TopoDS_Wire wire0 = wireMaker0.Wire();
 	TopoDS_Wire wire1 = wireMaker1.Wire();
 
-	Standard_Boolean isWire0Closed = wire0.Closed();
-	Standard_Boolean isWire1Closed = wire1.Closed();
 
-
-	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, Precision::Confusion());
+	//Standard_Boolean isWire0Closed = wire0.Closed();
+	//Standard_Boolean isWire1Closed = wire1.Closed();
+	// Create face and add wires
+	//BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, Precision::Confusion());
 	//faceMaker.Add(wire0);
 	//faceMaker.Add(wire1);
-	TopoDS_Face Nurbsface = faceMaker.Face();
 
-	BRepBuilderAPI_MakeFace faceMaker1(Nurbsface, wire0);
-	TopoDS_Face Nurbsface1 = faceMaker1.Face();
-
-	BRepCheck_Analyzer faceAnalyzer(Nurbsface1);
-	Standard_Boolean isFaceValid = faceAnalyzer.IsValid();
-
-	ShapeFix_Face faceFix(Nurbsface1);
-	faceFix.FixIntersectingWires();
-	faceFix.FixMissingSeam();
-	faceFix.FixOrientation();
-	faceFix.Perform();
-
-	TopoDS_Face builtFace = faceFix.Face();
+	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, wire0, false);
+	faceMaker.Add(TopoDS::Wire(wire1.Reversed()));
 
 
-	trimmedNurbsShape = new AIS_Shape(builtFace);
+	// Fix to recover 3D curves
+	ShapeFix_Face fix(faceMaker.Face());
+	fix.Perform();
+	
+	// Get the generated face
+	//TopoDS_Face Nurbsface = faceMaker.Face();
+	TopoDS_Face Nurbsface = fix.Face();
+	
+	//ShapeFix_Face faceFix(Nurbsface);
+	//faceFix.FixIntersectingWires();
+	//faceFix.FixMissingSeam();
+	//faceFix.FixOrientation();
+	//faceFix.Perform();
+	//TopoDS_Face builtFace = faceFix.Face();
+
+	trimmedNurbsShape = new AIS_Shape(Nurbsface);
 	if (trimmedNurbsShape.IsNull() == false) {
 
-		// Add the new sphere to the graphic context
+		// Add the trimmed nurbs to the graphic context
 		myAISContext->SetDisplayMode(trimmedNurbsShape, AIS_Shaded);
-		myAISContext->Display(trimmedNurbsShape);  // Draw the Sphere on the Screen  
+		myAISContext->Display(trimmedNurbsShape);  // Draw the face on the Screen  
 		myAISContext->DisplayAll();
 
 		// Update the viewer
 		myViewer->InitActiveViews();
 		Handle(V3d_View) activeView = myViewer->ActiveView();
 		if (activeView.IsNull() == false) {
-			activeView->FitAll();           // Focus to the View to the Drawn Shape.  
+			activeView->FitAll();           // Focus to the View to the Drawn face.  
 		}
 	}
 
+	// Dump in brep format
+	std::filebuf aFileBuf;
+	std::ostream aStream(&aFileBuf);
+	if (aFileBuf.open("F:\\Sviluppo\\OCCSampleApp\\trimmedNurbsShape.brep", ios::out)) {
+		BRepTools::Write(Nurbsface, aStream);
+	}
+	aFileBuf.close();
 
+	// Dump in stl format
 	Handle(StlMesh_Mesh) aShapeMesh;
 	generateMesh(Nurbsface, 0.01, 0.5, aShapeMesh);
 	saveMesh(aShapeMesh, L"F:\\Sviluppo\\OCCSampleApp\\nurbsTrimMesh.stl");
