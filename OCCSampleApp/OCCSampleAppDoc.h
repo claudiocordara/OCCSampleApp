@@ -79,4 +79,5 @@ public:
 	afx_msg void OnTestAddBoxWithHole();
 	afx_msg void OnTestAddCircleWithHole();
 	afx_msg void OnTestAddTrimmedNurbsSurface();
+	afx_msg void OnTestAddDumpedNurbsSurface();
 };

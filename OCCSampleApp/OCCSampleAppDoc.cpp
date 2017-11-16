@@ -47,6 +47,7 @@ BEGIN_MESSAGE_MAP(COCCSampleAppDoc, CDocument)
 	ON_COMMAND(ID_TEST_ADDBOXWITHHOLE, &COCCSampleAppDoc::OnTestAddBoxWithHole)
 	ON_COMMAND(ID_TEST_ADDCIRCLEWITHHOLE, &COCCSampleAppDoc::OnTestAddCircleWithHole)
 	ON_COMMAND(ID_TEST_ADDTRIMMEDNURBSSURFACE, &COCCSampleAppDoc::OnTestAddTrimmedNurbsSurface)
+	ON_COMMAND(ID_TEST_ADDDUMPEDNURBSSURFACE, &COCCSampleAppDoc::OnTestAddDumpedNurbsSurface)
 END_MESSAGE_MAP()
 
 
@@ -881,6 +882,167 @@ void COCCSampleAppDoc::OnTestAddTrimmedNurbsSurface() {
 	//TopoDS_Face Nurbsface = faceMaker.Face();
 	TopoDS_Face Nurbsface = fix.Face();
 	
+	//ShapeFix_Face faceFix(Nurbsface);
+	//faceFix.FixIntersectingWires();
+	//faceFix.FixMissingSeam();
+	//faceFix.FixOrientation();
+	//faceFix.Perform();
+	//TopoDS_Face builtFace = faceFix.Face();
+
+	trimmedNurbsShape = new AIS_Shape(Nurbsface);
+	if (trimmedNurbsShape.IsNull() == false) {
+
+		// Add the trimmed nurbs to the graphic context
+		myAISContext->SetDisplayMode(trimmedNurbsShape, AIS_Shaded);
+		myAISContext->Display(trimmedNurbsShape);  // Draw the face on the Screen  
+		myAISContext->DisplayAll();
+
+		// Update the viewer
+		myViewer->InitActiveViews();
+		Handle(V3d_View) activeView = myViewer->ActiveView();
+		if (activeView.IsNull() == false) {
+			activeView->FitAll();           // Focus to the View to the Drawn face.  
+		}
+	}
+
+	// Dump in brep format
+	std::filebuf aFileBuf;
+	std::ostream aStream(&aFileBuf);
+	if (aFileBuf.open("F:\\Sviluppo\\OCCSampleApp\\trimmedNurbsShape.brep", ios::out)) {
+		BRepTools::Write(Nurbsface, aStream);
+	}
+	aFileBuf.close();
+
+	// Dump in stl format
+	Handle(StlMesh_Mesh) aShapeMesh;
+	generateMesh(Nurbsface, 0.01, 0.5, aShapeMesh);
+	saveMesh(aShapeMesh, L"F:\\Sviluppo\\OCCSampleApp\\nurbsTrimMesh.stl");
+}
+
+
+void COCCSampleAppDoc::OnTestAddDumpedNurbsSurface() {
+	//Surface
+
+	TColgp_Array2OfPnt cpArray(1, 2, 1, 2);
+	TColStd_Array2OfReal wghArray(1, 2, 1, 2);
+	cpArray.SetValue(1, 1, gp_Pnt(-51, -51, 0));
+	wghArray.SetValue(1, 1, 1);
+	cpArray.SetValue(1, 2, gp_Pnt(-51, 51, 0));
+	wghArray.SetValue(1, 2, 1);
+	cpArray.SetValue(2, 1, gp_Pnt(51, -51, 0));
+	wghArray.SetValue(2, 1, 1);
+	cpArray.SetValue(2, 2, gp_Pnt(51, 51, 0));
+	wghArray.SetValue(2, 2, 1);
+	TColStd_Array1OfReal uKnotsArray(1, 2);
+	TColStd_Array1OfInteger uMultsArray(1, 2);
+	uKnotsArray.SetValue(1, -101);
+	uMultsArray.SetValue(1, 2);
+	uKnotsArray.SetValue(2, 1);
+	uMultsArray.SetValue(2, 2);
+	TColStd_Array1OfReal vKnotsArray(1, 2);
+	TColStd_Array1OfInteger vMultsArray(1, 2);
+	vKnotsArray.SetValue(1, -51);
+	vMultsArray.SetValue(1, 2);
+	vKnotsArray.SetValue(2, 51);
+	vMultsArray.SetValue(2, 2);
+	Handle(Geom_BSplineSurface) nurbsSurf;
+	nurbsSurf = new Geom_BSplineSurface(cpArray, wghArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 1, 1, Standard_False, Standard_False);
+
+	//Trim Curve
+
+	TColgp_Array1OfPnt2d cpArrayTrimCurve0(1, 9);
+	TColStd_Array1OfReal wghArrayTrimCurve0(1, 9);
+	cpArrayTrimCurve0.SetValue(1, gp_Pnt2d(0, 0));
+	wghArrayTrimCurve0.SetValue(1, 1);
+	cpArrayTrimCurve0.SetValue(2, gp_Pnt2d(0, 35.3553));
+	wghArrayTrimCurve0.SetValue(2, 0.707107);
+	cpArrayTrimCurve0.SetValue(3, gp_Pnt2d(-50, 50));
+	wghArrayTrimCurve0.SetValue(3, 1);
+	cpArrayTrimCurve0.SetValue(4, gp_Pnt2d(-70.7107, 35.3553));
+	wghArrayTrimCurve0.SetValue(4, 0.707107);
+	cpArrayTrimCurve0.SetValue(5, gp_Pnt2d(-100, 6.12323e-15));
+	wghArrayTrimCurve0.SetValue(5, 1);
+	cpArrayTrimCurve0.SetValue(6, gp_Pnt2d(-70.7107, -35.3553));
+	wghArrayTrimCurve0.SetValue(6, 0.707107);
+	cpArrayTrimCurve0.SetValue(7, gp_Pnt2d(-50, -50));
+	wghArrayTrimCurve0.SetValue(7, 1);
+	cpArrayTrimCurve0.SetValue(8, gp_Pnt2d(-7.10543e-15, -35.3553));
+	wghArrayTrimCurve0.SetValue(8, 0.707107);
+	cpArrayTrimCurve0.SetValue(9, gp_Pnt2d(0, 0));
+	wghArrayTrimCurve0.SetValue(9, 1);
+	TColStd_Array1OfReal knotsArrayTrimCurve0(1, 4);
+	TColStd_Array1OfInteger multsArrayTrimCurve0(1, 4);
+	knotsArrayTrimCurve0.SetValue(1, 0);
+	multsArrayTrimCurve0.SetValue(1, 3);
+	knotsArrayTrimCurve0.SetValue(2, 0.25);
+	multsArrayTrimCurve0.SetValue(2, 3);
+	knotsArrayTrimCurve0.SetValue(3, 0.5);
+	multsArrayTrimCurve0.SetValue(3, 3);
+	knotsArrayTrimCurve0.SetValue(4, 0.75);
+	multsArrayTrimCurve0.SetValue(4, 3);
+	Handle(Geom2d_BSplineCurve) trimCurve0;
+	trimCurve0 = new Geom2d_BSplineCurve(cpArrayTrimCurve0, wghArrayTrimCurve0, knotsArrayTrimCurve0, multsArrayTrimCurve0, 3, Standard_True);
+	BRepBuilderAPI_MakeEdge makeEdge0(trimCurve0, nurbsSurf);
+	TopoDS_Edge edge0 = makeEdge0.Edge();
+	BRepBuilderAPI_MakeWire wireMaker0;
+	wireMaker0.Add(edge0);
+	TopoDS_Wire wire0 = wireMaker0.Wire();
+	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, wire0, false);
+
+	//Trim Curve
+
+	TColgp_Array1OfPnt2d cpArrayTrimCurve1(1, 9);
+	TColStd_Array1OfReal wghArrayTrimCurve1(1, 9);
+	cpArrayTrimCurve1.SetValue(1, gp_Pnt2d(-25, -6.12323e-15));
+	wghArrayTrimCurve1.SetValue(1, 1);
+	cpArrayTrimCurve1.SetValue(2, gp_Pnt2d(-17.6777, -17.6777));
+	wghArrayTrimCurve1.SetValue(2, 0.707107);
+	cpArrayTrimCurve1.SetValue(3, gp_Pnt2d(-50, -25));
+	wghArrayTrimCurve1.SetValue(3, 1);
+	cpArrayTrimCurve1.SetValue(4, gp_Pnt2d(-53.033, -17.6777));
+	wghArrayTrimCurve1.SetValue(4, 0.707107);
+	cpArrayTrimCurve1.SetValue(5, gp_Pnt2d(-75, 3.06162e-15));
+	wghArrayTrimCurve1.SetValue(5, 1);
+	cpArrayTrimCurve1.SetValue(6, gp_Pnt2d(-53.033, 17.6777));
+	wghArrayTrimCurve1.SetValue(6, 0.707107);
+	cpArrayTrimCurve1.SetValue(7, gp_Pnt2d(-50, 25));
+	wghArrayTrimCurve1.SetValue(7, 1);
+	cpArrayTrimCurve1.SetValue(8, gp_Pnt2d(-17.6777, 17.6777));
+	wghArrayTrimCurve1.SetValue(8, 0.707107);
+	cpArrayTrimCurve1.SetValue(9, gp_Pnt2d(-25, -6.12323e-15));
+	wghArrayTrimCurve1.SetValue(9, 1);
+	TColStd_Array1OfReal knotsArrayTrimCurve1(1, 4);
+	TColStd_Array1OfInteger multsArrayTrimCurve1(1, 4);
+	knotsArrayTrimCurve1.SetValue(1, 0);
+	multsArrayTrimCurve1.SetValue(1, 3);
+	knotsArrayTrimCurve1.SetValue(2, 0.25);
+	multsArrayTrimCurve1.SetValue(2, 3);
+	knotsArrayTrimCurve1.SetValue(3, 0.5);
+	multsArrayTrimCurve1.SetValue(3, 3);
+	knotsArrayTrimCurve1.SetValue(4, 0.75);
+	multsArrayTrimCurve1.SetValue(4, 3);
+	Handle(Geom2d_BSplineCurve) trimCurve1;
+	trimCurve1 = new Geom2d_BSplineCurve(cpArrayTrimCurve1, wghArrayTrimCurve1, knotsArrayTrimCurve1, multsArrayTrimCurve1, 3, Standard_True);
+	BRepBuilderAPI_MakeEdge makeEdge1(trimCurve1, nurbsSurf);
+	TopoDS_Edge edge1 = makeEdge1.Edge();
+	BRepBuilderAPI_MakeWire wireMaker1;
+	wireMaker1.Add(edge1);
+	TopoDS_Wire wire1 = wireMaker1.Wire();
+	faceMaker.Add(TopoDS::Wire(wire1.Reversed()));
+
+
+
+
+
+
+	// Fix to recover 3D curves
+	ShapeFix_Face fix(faceMaker.Face());
+	fix.Perform();
+
+	// Get the generated face
+	//TopoDS_Face Nurbsface = faceMaker.Face();
+	TopoDS_Face Nurbsface = fix.Face();
+
 	//ShapeFix_Face faceFix(Nurbsface);
 	//faceFix.FixIntersectingWires();
 	//faceFix.FixMissingSeam();

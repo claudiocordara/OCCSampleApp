@@ -17,7 +17,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Inglese (Stati Uniti) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -108,6 +108,7 @@ BEGIN
         MENUITEM "Add Box With Hole",           ID_TEST_ADDBOXWITHHOLE
         MENUITEM "Add Circle With Hole",        ID_TEST_ADDCIRCLEWITHHOLE
         MENUITEM "Add Trimmed Nurbs Surface",   ID_TEST_ADDTRIMMEDNURBSSURFACE
+        MENUITEM "Add Dumped Nurbs Surface",    ID_TEST_ADDDUMPEDNURBSSURFACE
     END
     POPUP "&Help"
     BEGIN
@@ -340,12 +341,12 @@ BEGIN
     AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
 END
 
-#endif    // Inglese (Stati Uniti) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Italiano (Italia) resources
+// Italian (Italy) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ITA)
 LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
@@ -389,7 +390,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Italiano (Italia) resources
+#endif    // Italian (Italy) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
