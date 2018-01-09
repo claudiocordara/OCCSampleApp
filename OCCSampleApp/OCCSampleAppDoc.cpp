@@ -925,110 +925,103 @@ void COCCSampleAppDoc::OnTestAddDumpedNurbsSurface() {
 
 	TColgp_Array2OfPnt cpArray(1, 2, 1, 2);
 	TColStd_Array2OfReal wghArray(1, 2, 1, 2);
-	cpArray.SetValue(1, 1, gp_Pnt(-51, -51, 0));
+	cpArray.SetValue(1, 1, gp_Pnt(-5, -5, 0));
 	wghArray.SetValue(1, 1, 1);
-	cpArray.SetValue(1, 2, gp_Pnt(-51, 51, 0));
+	cpArray.SetValue(1, 2, gp_Pnt(-5, 5, 0));
 	wghArray.SetValue(1, 2, 1);
-	cpArray.SetValue(2, 1, gp_Pnt(51, -51, 0));
+	cpArray.SetValue(2, 1, gp_Pnt(5, -5, 0));
 	wghArray.SetValue(2, 1, 1);
-	cpArray.SetValue(2, 2, gp_Pnt(51, 51, 0));
+	cpArray.SetValue(2, 2, gp_Pnt(5, 5, 0));
 	wghArray.SetValue(2, 2, 1);
 	TColStd_Array1OfReal uKnotsArray(1, 2);
 	TColStd_Array1OfInteger uMultsArray(1, 2);
-	uKnotsArray.SetValue(1, -101);
+	uKnotsArray.SetValue(1, 0);
 	uMultsArray.SetValue(1, 2);
-	uKnotsArray.SetValue(2, 1);
+	uKnotsArray.SetValue(2, 10);
 	uMultsArray.SetValue(2, 2);
 	TColStd_Array1OfReal vKnotsArray(1, 2);
 	TColStd_Array1OfInteger vMultsArray(1, 2);
-	vKnotsArray.SetValue(1, -51);
+	vKnotsArray.SetValue(1, 0);
 	vMultsArray.SetValue(1, 2);
-	vKnotsArray.SetValue(2, 51);
+	vKnotsArray.SetValue(2, 10);
 	vMultsArray.SetValue(2, 2);
 	Handle(Geom_BSplineSurface) nurbsSurf;
 	nurbsSurf = new Geom_BSplineSurface(cpArray, wghArray, uKnotsArray, vKnotsArray, uMultsArray, vMultsArray, 1, 1, Standard_False, Standard_False);
 
 	//Trim Curve
 
-	TColgp_Array1OfPnt2d cpArrayTrimCurve0(1, 9);
-	TColStd_Array1OfReal wghArrayTrimCurve0(1, 9);
+	TColgp_Array1OfPnt2d cpArrayTrimCurve0(1, 2);
+	TColStd_Array1OfReal wghArrayTrimCurve0(1, 2);
 	cpArrayTrimCurve0.SetValue(1, gp_Pnt2d(0, 0));
 	wghArrayTrimCurve0.SetValue(1, 1);
-	cpArrayTrimCurve0.SetValue(2, gp_Pnt2d(0, 35.3553));
-	wghArrayTrimCurve0.SetValue(2, 0.707107);
-	cpArrayTrimCurve0.SetValue(3, gp_Pnt2d(-50, 50));
-	wghArrayTrimCurve0.SetValue(3, 1);
-	cpArrayTrimCurve0.SetValue(4, gp_Pnt2d(-70.7107, 35.3553));
-	wghArrayTrimCurve0.SetValue(4, 0.707107);
-	cpArrayTrimCurve0.SetValue(5, gp_Pnt2d(-100, 6.12323e-15));
-	wghArrayTrimCurve0.SetValue(5, 1);
-	cpArrayTrimCurve0.SetValue(6, gp_Pnt2d(-70.7107, -35.3553));
-	wghArrayTrimCurve0.SetValue(6, 0.707107);
-	cpArrayTrimCurve0.SetValue(7, gp_Pnt2d(-50, -50));
-	wghArrayTrimCurve0.SetValue(7, 1);
-	cpArrayTrimCurve0.SetValue(8, gp_Pnt2d(-7.10543e-15, -35.3553));
-	wghArrayTrimCurve0.SetValue(8, 0.707107);
-	cpArrayTrimCurve0.SetValue(9, gp_Pnt2d(0, 0));
-	wghArrayTrimCurve0.SetValue(9, 1);
-	TColStd_Array1OfReal knotsArrayTrimCurve0(1, 4);
-	TColStd_Array1OfInteger multsArrayTrimCurve0(1, 4);
+	cpArrayTrimCurve0.SetValue(2, gp_Pnt2d(10, 0));
+	wghArrayTrimCurve0.SetValue(2, 1);
+	TColStd_Array1OfReal knotsArrayTrimCurve0(1, 1);
+	TColStd_Array1OfInteger multsArrayTrimCurve0(1, 1);
 	knotsArrayTrimCurve0.SetValue(1, 0);
 	multsArrayTrimCurve0.SetValue(1, 3);
-	knotsArrayTrimCurve0.SetValue(2, 0.25);
-	multsArrayTrimCurve0.SetValue(2, 3);
-	knotsArrayTrimCurve0.SetValue(3, 0.5);
-	multsArrayTrimCurve0.SetValue(3, 3);
-	knotsArrayTrimCurve0.SetValue(4, 0.75);
-	multsArrayTrimCurve0.SetValue(4, 3);
 	Handle(Geom2d_BSplineCurve) trimCurve0;
-	trimCurve0 = new Geom2d_BSplineCurve(cpArrayTrimCurve0, wghArrayTrimCurve0, knotsArrayTrimCurve0, multsArrayTrimCurve0, 3, Standard_True);
+	trimCurve0 = new Geom2d_BSplineCurve(cpArrayTrimCurve0, wghArrayTrimCurve0, knotsArrayTrimCurve0, multsArrayTrimCurve0, 1, Standard_False);
 	BRepBuilderAPI_MakeEdge makeEdge0(trimCurve0, nurbsSurf);
 	TopoDS_Edge edge0 = makeEdge0.Edge();
-	BRepBuilderAPI_MakeWire wireMaker0;
-	wireMaker0.Add(edge0);
-	TopoDS_Wire wire0 = wireMaker0.Wire();
-	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, wire0, false);
 
 	//Trim Curve
 
-	TColgp_Array1OfPnt2d cpArrayTrimCurve1(1, 9);
-	TColStd_Array1OfReal wghArrayTrimCurve1(1, 9);
-	cpArrayTrimCurve1.SetValue(1, gp_Pnt2d(-25, -6.12323e-15));
+	TColgp_Array1OfPnt2d cpArrayTrimCurve1(1, 2);
+	TColStd_Array1OfReal wghArrayTrimCurve1(1, 2);
+	cpArrayTrimCurve1.SetValue(1, gp_Pnt2d(10, 0));
 	wghArrayTrimCurve1.SetValue(1, 1);
-	cpArrayTrimCurve1.SetValue(2, gp_Pnt2d(-17.6777, -17.6777));
-	wghArrayTrimCurve1.SetValue(2, 0.707107);
-	cpArrayTrimCurve1.SetValue(3, gp_Pnt2d(-50, -25));
-	wghArrayTrimCurve1.SetValue(3, 1);
-	cpArrayTrimCurve1.SetValue(4, gp_Pnt2d(-53.033, -17.6777));
-	wghArrayTrimCurve1.SetValue(4, 0.707107);
-	cpArrayTrimCurve1.SetValue(5, gp_Pnt2d(-75, 3.06162e-15));
-	wghArrayTrimCurve1.SetValue(5, 1);
-	cpArrayTrimCurve1.SetValue(6, gp_Pnt2d(-53.033, 17.6777));
-	wghArrayTrimCurve1.SetValue(6, 0.707107);
-	cpArrayTrimCurve1.SetValue(7, gp_Pnt2d(-50, 25));
-	wghArrayTrimCurve1.SetValue(7, 1);
-	cpArrayTrimCurve1.SetValue(8, gp_Pnt2d(-17.6777, 17.6777));
-	wghArrayTrimCurve1.SetValue(8, 0.707107);
-	cpArrayTrimCurve1.SetValue(9, gp_Pnt2d(-25, -6.12323e-15));
-	wghArrayTrimCurve1.SetValue(9, 1);
-	TColStd_Array1OfReal knotsArrayTrimCurve1(1, 4);
-	TColStd_Array1OfInteger multsArrayTrimCurve1(1, 4);
+	cpArrayTrimCurve1.SetValue(2, gp_Pnt2d(10, 10));
+	wghArrayTrimCurve1.SetValue(2, 1);
+	TColStd_Array1OfReal knotsArrayTrimCurve1(1, 1);
+	TColStd_Array1OfInteger multsArrayTrimCurve1(1, 1);
 	knotsArrayTrimCurve1.SetValue(1, 0);
 	multsArrayTrimCurve1.SetValue(1, 3);
-	knotsArrayTrimCurve1.SetValue(2, 0.25);
-	multsArrayTrimCurve1.SetValue(2, 3);
-	knotsArrayTrimCurve1.SetValue(3, 0.5);
-	multsArrayTrimCurve1.SetValue(3, 3);
-	knotsArrayTrimCurve1.SetValue(4, 0.75);
-	multsArrayTrimCurve1.SetValue(4, 3);
 	Handle(Geom2d_BSplineCurve) trimCurve1;
-	trimCurve1 = new Geom2d_BSplineCurve(cpArrayTrimCurve1, wghArrayTrimCurve1, knotsArrayTrimCurve1, multsArrayTrimCurve1, 3, Standard_True);
+	trimCurve1 = new Geom2d_BSplineCurve(cpArrayTrimCurve1, wghArrayTrimCurve1, knotsArrayTrimCurve1, multsArrayTrimCurve1, 1, Standard_False);
 	BRepBuilderAPI_MakeEdge makeEdge1(trimCurve1, nurbsSurf);
 	TopoDS_Edge edge1 = makeEdge1.Edge();
-	BRepBuilderAPI_MakeWire wireMaker1;
-	wireMaker1.Add(edge1);
-	TopoDS_Wire wire1 = wireMaker1.Wire();
-	faceMaker.Add(TopoDS::Wire(wire1.Reversed()));
+
+	//Trim Curve
+
+	TColgp_Array1OfPnt2d cpArrayTrimCurve2(1, 2);
+	TColStd_Array1OfReal wghArrayTrimCurve2(1, 2);
+	cpArrayTrimCurve2.SetValue(1, gp_Pnt2d(10, 10));
+	wghArrayTrimCurve2.SetValue(1, 1);
+	cpArrayTrimCurve2.SetValue(2, gp_Pnt2d(0, 10));
+	wghArrayTrimCurve2.SetValue(2, 1);
+	TColStd_Array1OfReal knotsArrayTrimCurve2(1, 1);
+	TColStd_Array1OfInteger multsArrayTrimCurve2(1, 1);
+	knotsArrayTrimCurve2.SetValue(1, 0);
+	multsArrayTrimCurve2.SetValue(1, 3);
+	Handle(Geom2d_BSplineCurve) trimCurve2;
+	trimCurve2 = new Geom2d_BSplineCurve(cpArrayTrimCurve2, wghArrayTrimCurve2, knotsArrayTrimCurve2, multsArrayTrimCurve2, 1, Standard_False);
+	BRepBuilderAPI_MakeEdge makeEdge2(trimCurve2, nurbsSurf);
+	TopoDS_Edge edge2 = makeEdge2.Edge();
+
+	//Trim Curve
+
+	TColgp_Array1OfPnt2d cpArrayTrimCurve3(1, 2);
+	TColStd_Array1OfReal wghArrayTrimCurve3(1, 2);
+	cpArrayTrimCurve3.SetValue(1, gp_Pnt2d(0, 10));
+	wghArrayTrimCurve3.SetValue(1, 1);
+	cpArrayTrimCurve3.SetValue(2, gp_Pnt2d(0, 0));
+	wghArrayTrimCurve3.SetValue(2, 1);
+	TColStd_Array1OfReal knotsArrayTrimCurve3(1, 1);
+	TColStd_Array1OfInteger multsArrayTrimCurve3(1, 1);
+	knotsArrayTrimCurve3.SetValue(1, 0);
+	multsArrayTrimCurve3.SetValue(1, 3);
+	Handle(Geom2d_BSplineCurve) trimCurve3;
+	trimCurve3 = new Geom2d_BSplineCurve(cpArrayTrimCurve3, wghArrayTrimCurve3, knotsArrayTrimCurve3, multsArrayTrimCurve3, 1, Standard_False);
+	BRepBuilderAPI_MakeEdge makeEdge3(trimCurve3, nurbsSurf);
+	TopoDS_Edge edge3 = makeEdge3.Edge();
+	BRepBuilderAPI_MakeWire wireMaker0;
+	wireMaker0.Add(edge0);
+	wireMaker0.Add(edge1);
+	wireMaker0.Add(edge2);
+	wireMaker0.Add(edge3);
+	TopoDS_Wire wire0 = wireMaker0.Wire();
+	BRepBuilderAPI_MakeFace faceMaker(nurbsSurf, wire0, false);
 
 
 
