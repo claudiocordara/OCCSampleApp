@@ -109,6 +109,7 @@ BEGIN
         MENUITEM "Add Circle With Hole",        ID_TEST_ADDCIRCLEWITHHOLE
         MENUITEM "Add Trimmed Nurbs Surface",   ID_TEST_ADDTRIMMEDNURBSSURFACE
         MENUITEM "Add Dumped Nurbs Surface",    ID_TEST_ADDDUMPEDNURBSSURFACE
+        MENUITEM "Add Cone",                    ID_TEST_ADDCONE
     END
     POPUP "&Help"
     BEGIN
