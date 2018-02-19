@@ -40,7 +40,7 @@ public:
 
 	Handle(V3d_Viewer) GetViewer() { return myViewer; }
 	void AddSphere(double Radius);
-
+	void AddCone();
 
 protected:
 
@@ -62,6 +62,7 @@ private:
 	Handle(AIS_Shape) boxWithHoleShape;
 	Handle(AIS_Shape) circleWithHoleShape;
 	Handle(AIS_Shape) trimmedNurbsShape;
+	Handle(AIS_Shape) coneShape;
 
 
 public:
@@ -80,4 +81,5 @@ public:
 	afx_msg void OnTestAddCircleWithHole();
 	afx_msg void OnTestAddTrimmedNurbsSurface();
 	afx_msg void OnTestAddDumpedNurbsSurface();
+	afx_msg void OnTestAddCone();
 };
