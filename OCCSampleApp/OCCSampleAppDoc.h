@@ -62,6 +62,9 @@ private:
 	Handle(AIS_Shape) boxWithHoleShape;
 	Handle(AIS_Shape) circleWithHoleShape;
 	Handle(AIS_Shape) trimmedNurbsShape;
+	Handle(AIS_Shape) trimmedNurbsShape0;
+	Handle(AIS_Shape) trimmedNurbsShape1;
+	Handle(AIS_Shape) trimmedNurbsShape2;
 	Handle(AIS_Shape) coneShape;
 
 
