@@ -61,10 +61,13 @@ private:
 	Handle(AIS_Shape) nurbsShape;
 	Handle(AIS_Shape) boxWithHoleShape;
 	Handle(AIS_Shape) circleWithHoleShape;
-	Handle(AIS_Shape) trimmedNurbsShape;
-	Handle(AIS_Shape) trimmedNurbsShape0;
-	Handle(AIS_Shape) trimmedNurbsShape1;
-	Handle(AIS_Shape) trimmedNurbsShape2;
+
+	std::vector<Handle(AIS_Shape)> trimmedNurbsShapeArray;
+	//Handle(AIS_Shape) trimmedNurbsShape;
+	//Handle(AIS_Shape) trimmedNurbsShape0;
+	//Handle(AIS_Shape) trimmedNurbsShape1;
+	//Handle(AIS_Shape) trimmedNurbsShape2;
+
 	Handle(AIS_Shape) coneShape;
 
 
@@ -74,8 +77,10 @@ public:
 
 private:
 	bool generateMesh(const TopoDS_Shape &_shape, Standard_Real _linearDeflection, Standard_Real _angularDeflection, Handle(StlMesh_Mesh) &_mesh);
+	bool generateMesh(std::vector<TopoDS_Shape> _shapeArray, Standard_Real _linearDeflection, Standard_Real _angularDeflection, std::vector<Handle(StlMesh_Mesh)> _meshArray);
 	bool saveMesh(const Handle(StlMesh_Mesh) &_mesh, std::wstring _fileName);
 	bool dumpNurbs(TopoDS_Shape _shape);
+	bool orderWireEdges(TopoDS_Wire _wire, TopoDS_Face _face, TopoDS_Wire _outWire);
 public:
 	afx_msg void OnTestAddNurbsSurface();
 	afx_msg void OnTestAddRationalNurbsSurface();
