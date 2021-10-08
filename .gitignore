@@ -1,3 +1,6 @@
 
 *.db
 *.idb
+OCCSampleApp/x64/Debug/OCCSampleApp.tlog/unsuccessfulbuild
+*.lastbuildstate
+*.tlog
