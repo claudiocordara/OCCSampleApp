@@ -1,7 +1,8 @@
 
 *.db
 *.idb
-OCCSampleApp/x64/Debug/OCCSampleApp.tlog/unsuccessfulbuild
+OCCSampleApp/x64/Debug/*
 *.lastbuildstate
 *.tlog
-OCCSampleApp/x64/Debug/OCCSampleApp.vcxproj.FileListAbsolute.txt
+*.user
+.vs/*
